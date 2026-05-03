@@ -2,38 +2,196 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Prakash Pumps - Master Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prakash Pumps | R&D Portal</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px; background: #f4f4f4; }
-        .card { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        select, button { padding: 10px; margin: 10px; border-radius: 5px; width: 100%; }
-        button { background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+        :root {
+            --primary-blue: #004a99;
+            --light-blue: #e3f2fd;
+            --accent-green: #28a745;
+            --text-dark: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+            color: var(--text-dark);
+        }
+
+        /* Header & Logo */
+        header {
+            background: white;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo-img {
+            height: 60px;
+            object-fit: contain;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 74, 153, 0.8), rgba(0, 74, 153, 0.8)), url('prakash.jfif');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 60px 5%;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 20px;
+            opacity: 0.9;
+        }
+
+        /* Content Container */
+        .container {
+            max-width: 900px;
+            margin: -40px auto 40px;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .about-section {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .about-img {
+            width: 40%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .about-text {
+            width: 60%;
+        }
+
+        /* R&D Portal Box */
+        .rd-box {
+            background: var(--light-blue);
+            padding: 30px;
+            border-radius: 12px;
+            border-left: 6px solid var(--primary-blue);
+            text-align: center;
+        }
+
+        .rd-box h3 {
+            color: var(--primary-blue);
+            margin-top: 0;
+        }
+
+        select {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            margin: 20px 0;
+            outline: none;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .btn-ok {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 50px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-ok:hover {
+            background: #003366;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #718096;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <img src="prakash logo.jfif" alt="Logo" style="width: 150px;">
-        <h1>Prakash Pumps R&D</h1>
-        <select id="moduleChoice">
-            <option value="">-- Select Department --</option>
-            <option value="shaft">Shaft Cutting Length</option>
-            <option value="stamping">Stamping Weight</option>
-        </select>
-        <br>
-        <button onclick="openFolder()">OK</button>
+
+    <header>
+        <img src="prakash logo.jfif" alt="Prakash Pumps Logo" class="logo-img">
+        <div style="font-weight: bold; color: var(--primary-blue);">R&D INTERNAL PORTAL</div>
+    </header>
+
+    <div class="hero">
+        <h1>PRAKASH PUMPS</h1>
+        <p>Leading the industry in high-efficiency submersible pumps and motor technology. Engineering excellence since decades.</p>
     </div>
 
+    <div class="container">
+        <div class="about-section">
+            <img src="prakash.jfif" alt="Pump Range" class="about-img">
+            <div class="about-text">
+                <h2>Our Expertise</h2>
+                <p>Humare pumps aur motors high-grade materials aur precision engineering se banaye jate hain. Ye welcome page humare <b>Research & Development</b> team ke liye design kiya gaya hai taaki wo shaft cutting aur stamping weights ki calculations asani se kar sakein.</p>
+            </div>
+        </div>
+
+        <div class="rd-box">
+            <h3>Research & Development Portal</h3>
+            <p>Aage badhne ke liye niche diye gaye dropdown se apna module select karein:</p>
+            
+            <select id="moduleSelect">
+                <option value="">-- Select Calculation Module --</option>
+                <option value="shaft">Shaft Cutting Length Management</option>
+                <option value="stamping">Motor Stamping & Rotor Weight</option>
+            </select>
+            <br>
+            <button class="btn-ok" onclick="navigate()">OK</button>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 Prakash Pumps. All rights reserved. | Designed for Internal Engineering Use.
+    </footer>
+
     <script>
-        function openFolder() {
-            const val = document.getElementById('moduleChoice').value;
-            if (val === 'shaft') {
-                // Folder ka naam 'Shaft_Module' aur file ka 'shaft_cutting.html'
-                window.location.href = 'Shaft_Module/shaft_cutting.html'; 
-            } else if (val === 'stamping') {
-                // Folder ka naam 'Stamping_Module' aur file ka 'stamping_weight.html'
-                window.location.href = 'Stamping_Module/stamping_weight.html';
+        function navigate() {
+            const choice = document.getElementById('moduleSelect').value;
+            if (choice === 'shaft') {
+                // Agar aapka folder 'Shaft_Folder' hai
+                window.location.href = 'Shaft_Folder/shaft_cutting.html';
+            } else if (choice === 'stamping') {
+                // Agar aapka folder 'Stamping_Folder' hai
+                window.location.href = 'Stamping_Folder/stamping_weight.html';
             } else {
-                alert("Please select an option!");
+                alert("Kripya ek option select karein!");
             }
         }
     </script>
