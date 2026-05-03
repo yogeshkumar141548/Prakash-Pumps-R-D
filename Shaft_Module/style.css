@@ -1,0 +1,147 @@
+:root {
+    --primary: #007bff;
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --light: #f8f9fa;
+    --dark: #343a40;
+}
+
+* { box-sizing: border-box; }
+
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    /* Background Image */
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                url('prakash.jfif'); 
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    margin: 0; 
+    padding: 20px; 
+    color: #333;
+    min-height: 100vh;
+}
+
+.container { 
+    max-width: 1100px; 
+    margin: 40px auto; 
+    background: rgba(255, 255, 255, 0.95); 
+    padding: 30px; 
+    border-radius: 16px; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3); 
+    backdrop-filter: blur(5px);
+}
+
+header {
+    position: relative; /* Logo ko yahan se position milegi */
+    text-align: center;
+    margin-bottom: 40px;
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 25px;
+}
+
+/* --- Logo Styling --- */
+.right-logo {
+    position: absolute;
+    top: -10px;    /* Zarurat ke hisaab se upar-neeche karein */
+    right: 0;      /* Right side chipka rahega */
+    width: 70px;   /* Size chota kar diya hai (Perfect size) */
+    height: auto;
+    object-fit: contain;
+}
+
+h1 { margin: 0; color: var(--primary); font-size: 2.2rem; font-weight: 700; }
+header p { color: #666; margin: 5px 0 0 0; font-size: 1.1rem; }
+
+h2 { 
+    font-size: 1.5rem; 
+    margin-bottom: 20px; 
+    color: var(--dark); 
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section { margin-bottom: 40px; }
+
+.input-group { 
+    display: flex; 
+    gap: 12px; 
+    flex-wrap: wrap; 
+    margin-bottom: 25px; 
+    align-items: flex-end;
+}
+
+input, select { 
+    padding: 12px; 
+    border: 2px solid #e9ecef; 
+    border-radius: 8px; 
+    flex: 1; 
+    min-width: 120px;
+    font-size: 1rem;
+}
+
+input:focus { outline: none; border-color: var(--primary); }
+
+button { 
+    padding: 12px 24px; 
+    cursor: pointer; 
+    border: none; 
+    border-radius: 8px; 
+    font-weight: 600; 
+    transition: all 0.2s;
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: #0056b3; }
+
+.btn-optimize { 
+    background: linear-gradient(135deg, var(--success), #20c997); 
+    color: white; 
+    width: 100%; 
+    font-size: 1.2rem;
+    margin-top: 10px;
+}
+
+.table-container { 
+    overflow-x: auto; 
+    background: var(--light); 
+    border-radius: 12px;
+}
+
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid #dee2e6; }
+
+.bar-card { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 12px; 
+    margin-top: 20px; 
+    border-left: 6px solid var(--primary);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.tag {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 15px;
+    margin: 4px;
+    font-size: 0.85rem;
+}
+
+.waste-text { color: var(--danger); font-weight: bold; }
+.divider { margin: 40px 0; border: 0; border-top: 1px solid #eee; }
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+    .right-logo {
+        position: static;
+        display: block;
+        margin: 0 auto 15px auto;
+        width: 60px;
+    }
+    .container { margin: 10px; padding: 15px; }
+}

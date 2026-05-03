@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panji Engineering Pvt. Ltd</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+        <img src="prakash logo.jfif" alt="Prakash Logo" class="right-logo">
+            <h1>Prakash Pumps</h1>
+            <p>Cutting Shaft Management System</p>
+            <header style="position: relative;"> 
+    
+    
+</header>
+        </header>
+
+        <section class="section">
+            <h2>1. Shaft Detail</h2>
+            <div class="input-group">
+                <input id="model" type="text" placeholder="Model Name">
+                <input id="length" type="number" placeholder="Length" step="0.1">
+                <select id="uom"></select>
+                <input id="qty" type="number" placeholder="Qty" min="1" value="1" style="flex: 0.5; min-width: 80px;">
+                <button id="addBtn" onclick="addData()" class="btn-primary">Add / Update</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Model Name</th>
+                            <th>Length</th>
+                            <th>Unit</th>
+                            <th>Order Qty</th>
+                            <th style="width: 150px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableData"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <hr class="divider">
+
+        <section class="section">
+            <h2>2. RoundBar Detail</h2>
+            <div class="input-group">
+                <input id="barLength" type="number" placeholder="Raw Bar Length">
+                <select id="barUnit"></select>
+                <button onclick="perfectOptimize()" class="btn-optimize">🚀 Click Here</button>
+            </div>
+            <div id="result"></div>
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
