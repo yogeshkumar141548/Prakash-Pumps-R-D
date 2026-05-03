@@ -3,29 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panji Engineering Pvt. Ltd</title>
+    <title>Prakash Pumps - Shaft Cutting Management</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="logo-container">
-        <img src="prakash logo.jfif" alt="Prakash Logo" class="right-logo">
+            <img src="prakash logo.jfif" alt="Prakash Logo" class="right-logo">
             <h1>Prakash Pumps</h1>
-            <p>Cutting Shaft Management System</p>
-            <header style="position: relative;"> 
-    
-    
-</header>
+            <p>Shaft Cutting Management System</p>
         </header>
 
         <section class="section">
-            <h2>1. Shaft Detail</h2>
+            <h2>1. Shaft Details</h2>
             <div class="input-group">
-                <input id="model" type="text" placeholder="Model Name">
+                <!-- Select or type the specific pump model -->
+                <input id="model" list="modelList" placeholder="Select or Type Model" oninput="autoFillDetails()">
+                <datalist id="modelList"></datalist>
+                
+                <input id="diameter" type="number" placeholder="Diameter (mm)" step="0.1">
                 <input id="length" type="number" placeholder="Length" step="0.1">
                 <select id="uom"></select>
-                <input id="qty" type="number" placeholder="Qty" min="1" value="1" style="flex: 0.5; min-width: 80px;">
+                <input id="qty" type="number" placeholder="Quantity" min="1" value="1" style="flex: 0.5; min-width: 80px;">
                 <button id="addBtn" onclick="addData()" class="btn-primary">Add / Update</button>
             </div>
 
@@ -34,9 +33,10 @@
                     <thead>
                         <tr>
                             <th>Model Name</th>
+                            <th>Diameter (mm)</th>
                             <th>Length</th>
                             <th>Unit</th>
-                            <th>Order Qty</th>
+                            <th>Order Quantity</th>
                             <th style="width: 150px;">Action</th>
                         </tr>
                     </thead>
@@ -48,11 +48,12 @@
         <hr class="divider">
 
         <section class="section">
-            <h2>2. RoundBar Detail</h2>
+            <h2>2. Raw Material (Round Bar) Details</h2>
             <div class="input-group">
                 <input id="barLength" type="number" placeholder="Raw Bar Length">
                 <select id="barUnit"></select>
-                <button onclick="perfectOptimize()" class="btn-optimize">🚀 Click Here</button>
+                <!-- Changed 'Calculate Diameter-wise Plan' for better English clarity -->
+                <button onclick="perfectOptimize()" class="btn-optimize">🚀 Calculate Optimized Cutting Plan</button>
             </div>
             <div id="result"></div>
         </section>
