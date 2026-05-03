@@ -93,7 +93,8 @@ function toggleEditMode() {
 }
 
 function resetToDefault() {
-    if(confirm("Kya aap saara data reset karke Excel wali purani values wapas lana chahte hain?")) {
+    // Translated Hindi prompt to English
+    if(confirm("Are you sure you want to reset all data and restore the original Excel values?")) {
         localStorage.removeItem('motorDB');
         motorData = [...defaultData];
         init();
