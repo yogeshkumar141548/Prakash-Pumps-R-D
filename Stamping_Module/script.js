@@ -59,7 +59,7 @@ function calculate() {
     const row = motorData.find(d => d.Stamping === stampingSel.value && d.CL == clSel.value);
     if(!row) return;
 
-    // Unit Weights display
+    // Display Weights
     if(editMode) {
         document.getElementById('statorUnit').innerHTML = `<input type="number" step="0.01" class="edit-input" value="${row.StatorWt}" onchange="updateValue('StatorWt', this.value)"> kg`;
         document.getElementById('rotorUnit').innerHTML = `<input type="number" step="0.01" class="edit-input" value="${row.RotorWt}" onchange="updateValue('RotorWt', this.value)"> kg`;
@@ -68,21 +68,12 @@ function calculate() {
         document.getElementById('rotorUnit').textContent = row.RotorWt + " kg";
     }
 
-    // Individual Totals based on Qty
     const totalS = (row.StatorWt * sQty.value).toFixed(2);
     const totalR = (row.RotorWt * rQty.value).toFixed(2);
 
-    // Update UI Elements
     document.getElementById('statorTotal').textContent = totalS;
     document.getElementById('rotorTotal').textContent = totalR;
-    
-    // Update Bottom Bar Breakdown
-    document.getElementById('statorTotalFinal').textContent = totalS;
-    document.getElementById('rotorTotalFinal').textContent = totalR;
-    
-    // Grand Total Calculation
-    const grandTotal = (parseFloat(totalS) + parseFloat(totalR)).toFixed(2);
-    document.getElementById('grandTotal').textContent = grandTotal;
+    document.getElementById('grandTotal').textContent = (parseFloat(totalS) + parseFloat(totalR)).toFixed(2);
 }
 
 function updateValue(key, val) {
@@ -90,7 +81,6 @@ function updateValue(key, val) {
     if(index !== -1) {
         motorData[index][key] = parseFloat(val) || 0;
         localStorage.setItem('motorDB', JSON.stringify(motorData));
-        calculate(); // Recalculate immediately on edit
     }
 }
 
