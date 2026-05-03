@@ -165,7 +165,7 @@
 
         <div class="rd-box">
             <h3>Research & Development Portal</h3>
-            <p>Aage badhne ke liye niche diye gaye dropdown se apna module select karein:</p>
+            <p>Going to Next Page Please Select Dropdown Menu:</p>
             
             <select id="moduleSelect">
                 <option value="">-- Select Calculation Module --</option>
@@ -185,11 +185,11 @@
         function navigate() {
             const choice = document.getElementById('moduleSelect').value;
             if (choice === 'shaft') {
-                // Agar aapka folder 'Shaft_Folder' hai
-                window.location.href = 'Shaft_Folder/shaft_cutting.html';
+                // for 'Shaft_Folder'
+                window.location.href = 'Shaft_Module/shaft_cutting.html';
             } else if (choice === 'stamping') {
-                // Agar aapka folder 'Stamping_Folder' hai
-                window.location.href = 'Stamping_Folder/stamping_weight.html';
+                // for 'Stamping_Folder'
+                window.location.href = 'Stamping_Module/stamping_weight.html';
             } else {
                 alert("Kripya ek option select karein!");
             }
