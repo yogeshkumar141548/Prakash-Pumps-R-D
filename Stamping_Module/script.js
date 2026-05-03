@@ -92,6 +92,13 @@ function toggleEditMode() {
     calculate();
 }
 
+function resetToDefault() {
+    // Translated Hindi prompt to English
+    if(confirm("Are you sure you want to reset all data and restore the original Excel values?")) {
+        localStorage.removeItem('motorDB');
+        motorData = [...defaultData];
+        init();
+    }
 }
 
 stampingSel.addEventListener('change', updateCLDropdown);
