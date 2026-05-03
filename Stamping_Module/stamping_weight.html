@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motor Weights Pro Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Motor Stamping & Rotor Manager</h1>
+            <div class="admin-bar">
+                <button id="editBtn" class="btn" onclick="toggleEditMode()">Enable Edit Mode</button>
+                <button id="resetBtn" class="btn btn-secondary" onclick="resetToDefault()">Reset to Excel Data</button>
+            </div>
+        </header>
+        
+        <div class="controls card">
+            <div class="input-group">
+                <label>Stamping Model:</label>
+                <select id="stamping"></select>
+            </div>
+            <div class="input-group">
+                <label>Core Length (CL):</label>
+                <select id="cl"></select>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <div class="section-card stator-card">
+                <div class="card-header">
+                    <h2>Stator Details</h2>
+                </div>
+                <div class="input-group">
+                    <label>Quantity (Qty):</label>
+                    <input type="number" id="statorQty" value="1" min="0">
+                </div>
+                <div class="result-box">
+                    <div class="row">
+                        <span>Unit Weight:</span>
+                        <span id="statorUnit" class="weight-val">-</span>
+                    </div>
+                    <hr>
+                    <div class="row total-row">
+                        <span>Total Stator:</span>
+                        <span><span id="statorTotal">0.00</span> kg</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card rotor-card">
+                <div class="card-header">
+                    <h2>Rotor Details</h2>
+                </div>
+                <div class="input-group">
+                    <label>Quantity (Qty):</label>
+                    <input type="number" id="rotorQty" value="1" min="0">
+                </div>
+                <div class="result-box">
+                    <div class="row">
+                        <span>Unit Weight:</span>
+                        <span id="rotorUnit" class="weight-val">-</span>
+                    </div>
+                    <hr>
+                    <div class="row total-row">
+                        <span>Total Rotor:</span>
+                        <span><span id="rotorTotal">0.00</span> kg</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grand-total-bar">
+            <h3>Total Stamping Weight: <span id="grandTotal">0.00</span> kg</h3>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
