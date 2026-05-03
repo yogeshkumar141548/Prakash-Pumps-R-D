@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prakash Pumps - Master Portal</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background: #f4f4f4; }
+        .card { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        select, button { padding: 10px; margin: 10px; border-radius: 5px; width: 100%; }
+        button { background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img src="prakash logo.jfif" alt="Logo" style="width: 150px;">
+        <h1>Prakash Pumps R&D</h1>
+        <select id="moduleChoice">
+            <option value="">-- Select Department --</option>
+            <option value="shaft">Shaft Cutting Length</option>
+            <option value="stamping">Stamping Weight</option>
+        </select>
+        <br>
+        <button onclick="openFolder()">OK</button>
+    </div>
+
+    <script>
+        function openFolder() {
+            const val = document.getElementById('moduleChoice').value;
+            if (val === 'shaft') {
+                // Folder ka naam 'Shaft_Module' aur file ka 'shaft_cutting.html'
+                window.location.href = 'Shaft_Module/shaft_cutting.html'; 
+            } else if (val === 'stamping') {
+                // Folder ka naam 'Stamping_Module' aur file ka 'stamping_weight.html'
+                window.location.href = 'Stamping_Module/stamping_weight.html';
+            } else {
+                alert("Please select an option!");
+            }
+        }
+    </script>
+</body>
+</html>
