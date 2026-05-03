@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Motor Weights Pro Dashboard</title>
+    <title>Stator & Rotor Weight Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="container">
         <header>
-            <h1>Motor Stamping & Rotor Manager</h1>
+            <h1>Motor Stator Stamping & Rotor Manager</h1>
             <div class="admin-bar">
                 <button id="editBtn" class="btn" onclick="toggleEditMode()">Enable Edit Mode</button>
                 <button id="resetBtn" class="btn btn-secondary" onclick="resetToDefault()">Reset to Excel Data</button>
@@ -19,7 +19,7 @@
         
         <div class="controls card">
             <div class="input-group">
-                <label>Stamping Model:</label>
+                <label>Stamping Sizes:</label>
                 <select id="stamping"></select>
             </div>
             <div class="input-group">
@@ -31,7 +31,7 @@
         <div class="main-layout">
             <div class="section-card stator-card">
                 <div class="card-header">
-                    <h2>Stator Details</h2>
+                    <h2>Stator Stamping Details</h2>
                 </div>
                 <div class="input-group">
                     <label>Quantity (Qty):</label>
@@ -44,7 +44,7 @@
                     </div>
                     <hr>
                     <div class="row total-row">
-                        <span>Total Stator:</span>
+                        <span>Total Stator Stamping:</span>
                         <span><span id="statorTotal">0.00</span> kg</span>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
 
             <div class="section-card rotor-card">
                 <div class="card-header">
-                    <h2>Rotor Details</h2>
+                    <h2>Rotor Stamping Details</h2>
                 </div>
                 <div class="input-group">
                     <label>Quantity (Qty):</label>
@@ -65,7 +65,7 @@
                     </div>
                     <hr>
                     <div class="row total-row">
-                        <span>Total Rotor:</span>
+                        <span>Total Rotor Stamping:</span>
                         <span><span id="rotorTotal">0.00</span> kg</span>
                     </div>
                 </div>
