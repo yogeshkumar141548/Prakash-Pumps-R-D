@@ -27,7 +27,7 @@ function addData() {
     const q = parseInt(document.getElementById("qty").value) || 1;
 
     if (!m || isNaN(l) || l <= 0) {
-        alert("Sahi Model Name aur Length bharein.");
+        alert("Please enter a valid Model Name and Length.");
         return;
     }
 
@@ -36,7 +36,7 @@ function addData() {
     if (editIndex === -1) {
         const existingIdx = dataList.findIndex(item => item.model.toLowerCase() === m.toLowerCase());
         if (existingIdx !== -1) {
-            if (confirm("Model pehle se hai. Update karein?")) {
+            if (confirm("Model already exists. Would you like to update the existing entry?")) {
                 dataList[existingIdx] = newData;
             } else { return; }
         } else {
@@ -65,7 +65,7 @@ function renderTable() {
             <td>${item.qty} pcs</td>
             <td>
                 <button onclick="editData(${index})" class="btn-sm btn-warning">Edit</button>
-                <button onclick="deleteData(${index})" class="btn-sm btn-danger">Del</button>
+                <button onclick="deleteData(${index})" class="btn-sm btn-danger">Delete</button>
             </td>
         </tr>
     `).join("");
@@ -82,7 +82,7 @@ function editData(index) {
 }
 
 function deleteData(index) {
-    if(confirm("Delete karein?")) {
+    if(confirm("Are you sure you want to delete this item?")) {
         dataList.splice(index, 1);
         saveAndRefresh();
     }
@@ -100,17 +100,17 @@ function perfectOptimize() {
     const resDiv = document.getElementById("result");
 
     if (isNaN(barInput) || barInput <= 0 || dataList.length === 0) {
-        alert("Pehle Raw Bar ki length daalein aur Models add karein.");
+        alert("Please enter the Raw Bar length and add at least one Model first.");
         return;
     }
 
     const barMM = convert(barInput, barUnit, "mm");
     let itemsToProcess = [];
 
-    dataList.forEach(item => {
+    for (let item of dataList) {
         const sizeMM = convert(item.length, item.uom, "mm");
         if (sizeMM > barMM) {
-            alert(`Error: ${item.model} raw bar se bada hai!`);
+            alert(`Error: Model "${item.model}" is longer than the raw bar!`);
             return;
         }
         for(let i=0; i < item.qty; i++) {
@@ -121,9 +121,9 @@ function perfectOptimize() {
                 uom: item.uom 
             });
         }
-    });
+    }
 
-    // Step 1: Sorting (FFD Algorithm)
+    // Step 1: Sorting (First Fit Decreasing Algorithm)
     itemsToProcess.sort((a, b) => b.size - a.size);
 
     // Step 2: Bin Packing
