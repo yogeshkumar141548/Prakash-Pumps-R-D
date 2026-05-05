@@ -56,3 +56,22 @@ th { background: var(--light); }
 
 .waste-text { color: var(--danger); font-weight: bold; }
 .bar-card { padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; background: #fff; }
+
+
+
+.back-home-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-family: Arial, sans-serif;
+  z-index: 1000;
+}
+
+.back-home-btn:hover {
+  background-color: #0056b3;
+}
