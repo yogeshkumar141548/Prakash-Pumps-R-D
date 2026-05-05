@@ -56,17 +56,27 @@
                 <button onclick="perfectOptimize()" class="btn-optimize">🚀 Calculate Optimized Cutting Plan</button>
             </div>
             <div id="result"></div>
+            
+            // for downlaod pdf option
+<button onclick="downloadPDF()">Download PDF</button>
+
+            <script>
+function downloadPDF() {
+    var printContent = document.getElementById("result").innerHTML;
+    var originalContent = document.body.innerHTML;
+
+    document.body.innerHTML = printContent;
+
+    window.print();
+
+    document.body.innerHTML = originalContent;
+}
+</script>
+            
         </section>
     </div>
     <script src="script.js"></script>
     <body>
-// for downlaod pdf option
-<button onclick="downloadPDF()">Download PDF</button>
-        <script>
-function downloadPDF() {
-    window.print();
-}
-</script>
 
 </body>
 <div class="container">
