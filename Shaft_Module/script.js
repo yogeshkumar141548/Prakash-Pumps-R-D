@@ -254,23 +254,29 @@ function perfectOptimize() {
 
     resDiv.innerHTML = html;
 }
+<!-- 1. Library FIRST -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<!-- 2. Your function -->
 <script>
 function downloadPDF() {
     const element = document.getElementById("resultSection");
 
     const opt = {
-        margin:       0.5,
-        filename:     'cutting-shaft-result.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        margin: 0.5,
+        filename: 'cutting-shaft-result.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf().set(opt).from(element).save();
 }
 </script>
-<p id="date"></p>
 
-<script>
-document.getElementById("date").innerText = new Date().toLocaleString();
-</script>    
+<!-- 3. HTML content -->
+<div id="resultSection">
+    Your data here
+</div>
+
+<button onclick="downloadPDF()">Download PDF</button>
