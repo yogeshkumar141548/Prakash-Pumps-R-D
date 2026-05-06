@@ -60,7 +60,7 @@
 
         /* Content Container */
         .container {
-            max-width: 900px;
+            max-width: 1000px; /* Thoda wide kiya hai tools ke liye */
             margin: -40px auto 40px;
             background: white;
             padding: 40px;
@@ -159,18 +159,19 @@
             <img src="prakash.jfif" alt="Pump Range" class="about-img">
             <div class="about-text">
                 <h2>Our Expertise</h2>
-                <p>Our pumps and motors are manufactured using high-grade materials and precision engineering. This welcome page is designed for our Research & Development team to easily perform calculations for shaft cutting and stamping weights.</p>
+                <p>Engineering excellence for R&D professionals. Perform complex calculations for shaft management, weight estimation, and container optimization in one unified portal.</p>
             </div>
         </div>
 
         <div class="rd-box">
             <h3>Research & Development Portal</h3>
-            <p>Going to Next Page Please Select Dropdown Menu</p>
+            <p>Please select the required module from the dropdown menu</p>
             
             <select id="moduleSelect">
                 <option value="">-- Select Calculation Module --</option>
                 <option value="shaft">Shaft Cutting Length Management</option>
                 <option value="stamping">Motor Stator & Rotor Stamping Weight</option>
+                <option value="container">Container Packing Management</option>
             </select>
             <br>
             <button class="btn-ok" onclick="navigate()">OK</button>
@@ -184,14 +185,16 @@
     <script>
         function navigate() {
             const choice = document.getElementById('moduleSelect').value;
+            
             if (choice === 'shaft') {
-                // for 'Shaft_Folder'
                 window.location.href = 'Shaft_Module/shaft_cutting.html';
             } else if (choice === 'stamping') {
-                // for 'Stamping_Folder'
                 window.location.href = 'Stamping_Module/stamping_weight.html';
+            } else if (choice === 'container') {
+                // Naya module jo aapne add karne ko kaha tha
+                window.location.href = 'Packing_Module/ .html';
             } else {
-                alert("Kripya ek option select karein!");
+                alert("Please Select Atleast One Option!");
             }
         }
     </script>
