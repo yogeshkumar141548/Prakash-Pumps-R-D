@@ -20,7 +20,6 @@
             color: var(--text-dark);
         }
 
-        /* Header & Logo */
         header {
             background: white;
             padding: 15px 5%;
@@ -30,37 +29,18 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .logo-img {
-            height: 60px;
-            object-fit: contain;
-        }
+        .logo-img { height: 60px; object-fit: contain; }
 
-        /* Hero Section */
         .hero {
-            background: linear-gradient(rgba(0, 74, 153, 0.8), rgba(0, 74, 153, 0.8)), url('prakash.jfif');
-            background-size: cover;
-            background-position: center;
+            background: linear-gradient(rgba(0, 74, 153, 0.8), rgba(0, 74, 153, 0.8));
+            background-color: var(--primary-blue);
             color: white;
             padding: 60px 5%;
             text-align: center;
         }
 
-        .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
-
-        .hero p {
-            font-size: 1.1rem;
-            max-width: 700px;
-            margin: 0 auto 20px;
-            opacity: 0.9;
-        }
-
-        /* Content Container */
         .container {
-            max-width: 1000px; /* Thoda wide kiya hai tools ke liye */
+            max-width: 1000px;
             margin: -40px auto 40px;
             background: white;
             padding: 40px;
@@ -68,35 +48,12 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
 
-        .about-section {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-            margin-bottom: 40px;
-        }
-
-        .about-img {
-            width: 40%;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .about-text {
-            width: 60%;
-        }
-
-        /* R&D Portal Box */
         .rd-box {
             background: var(--light-blue);
             padding: 30px;
             border-radius: 12px;
             border-left: 6px solid var(--primary-blue);
             text-align: center;
-        }
-
-        .rd-box h3 {
-            color: var(--primary-blue);
-            margin-top: 0;
         }
 
         select {
@@ -107,12 +64,6 @@
             border: 2px solid #cbd5e0;
             border-radius: 8px;
             margin: 20px 0;
-            outline: none;
-            cursor: pointer;
-        }
-
-        select:focus {
-            border-color: var(--primary-blue);
         }
 
         .btn-ok {
@@ -124,54 +75,32 @@
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .btn-ok:hover {
-            background: #003366;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #718096;
-            font-size: 14px;
-        }
+        footer { text-align: center; padding: 20px; color: #718096; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <header>
-        <img src="prakash logo.jfif" alt="Prakash Pump Logo" class="logo-img">
-        <div style="font-weight: bold; color: var(--primary-blue);">R&D INTERNAL PORTAL</div>
+        <div style="font-weight: bold; color: var(--primary-blue);">PRAKASH PUMPS R&D INTERNAL PORTAL</div>
     </header>
 
     <div class="hero">
-        <h1>PRAKASH PUMP</h1>
-        <p>Leading the industry in high-efficiency submersible pumps and motor technology. Engineering excellence since decades.</p>
+        <h1>RESEARCH & DEVELOPMENT</h1>
+        <p>Engineering excellence for professional pump and motor calculations.</p>
     </div>
 
     <div class="container">
-        <div class="about-section">
-            <img src="prakash.jfif" alt="Pump Range" class="about-img">
-            <div class="about-text">
-                <h2>Our Expertise</h2>
-                <p>Engineering excellence for R&D professionals. Perform complex calculations for shaft management, weight estimation, and container optimization in one unified portal.</p>
-            </div>
-        </div>
-
         <div class="rd-box">
-            <h3>Research & Development Portal</h3>
-            <p>Please select the required module from the dropdown menu</p>
+            <h3>Select Calculation Module</h3>
+            <p>Please select a module to proceed</p>
             
             <select id="moduleSelect">
-                <option value="">-- Select Calculation Module --</option>
+                <option value="">-- Select Module --</option>
                 <option value="shaft">Shaft Cutting Length Management</option>
-                <option value="stamping">Motor Stator & Rotor Stamping Weight</option>
-                <option value="container">Container Packing Management</option>
+                <option value="stamping">Motor Stamping Weight</option>
+                <option value="container">Container Packing Optimizer (AI)</option>
             </select>
             <br>
             <button class="btn-ok" onclick="navigate()">OK</button>
@@ -179,22 +108,23 @@
     </div>
 
     <footer>
-        &copy; Designed by Yogesh kumar. All rights reserved. | Designed for Internal Engineering Use.
+        &copy; Designed by Yogesh kumar. Internal Engineering Use.
     </footer>
 
     <script>
         function navigate() {
             const choice = document.getElementById('moduleSelect').value;
             
+            // Check karein ki file names exactly yehi hain ya nahi
             if (choice === 'shaft') {
                 window.location.href = 'Shaft_Module/shaft_cutting.html';
             } else if (choice === 'stamping') {
                 window.location.href = 'Stamping_Module/stamping_weight.html';
             } else if (choice === 'container') {
-                // Naya module jo aapne add karne ko kaha tha
-                window.location.href = 'Packing_Module/ .html';
+                // Ensure Folder: 'Container_Module' and File: 'container_optimizer.html' exist
+                window.location.href = 'Container_Module/container_optimizer.html';
             } else {
-                alert("Please Select Atleast One Option!");
+                alert("Please select a valid option!");
             }
         }
     </script>
