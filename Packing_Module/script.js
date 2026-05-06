@@ -13,14 +13,14 @@ document.getElementById('addBtn').addEventListener('click', () => {
     const qty = parseInt(document.getElementById('pQty').value);
 
     if (!name || isNaN(l) || isNaN(qty)) {
-        alert("Kripya product ki poori jaankari bharein!");
+        alert("Please Enter Full Product Detail!");
         return;
     }
 
     productList.push({ name, l, w, h, qty });
     renderList();
     clearInputs();
-    // Jaise hi naya item add ho, purana result hide kar dein
+    // when new item added the old reult will be hide
     document.getElementById('resultArea').style.display = 'none';
 });
 
@@ -41,7 +41,7 @@ function renderList() {
     });
 }
 
-// 2. Edit Function: Data wapas boxes mein bhejta hai
+// 2. Edit Function: refresh table and ready to re-edit
 function editProd(i) {
     const p = productList[i];
     document.getElementById('pName').value = p.name;
@@ -49,7 +49,7 @@ function editProd(i) {
     document.getElementById('pW').value = p.w;
     document.getElementById('pH').value = p.h;
     document.getElementById('pQty').value = p.qty;
-    removeProd(i); // Edit ke liye purana item hata dete hain
+    removeProd(i); // remove old item for re-edit
 }
 
 // 3. Remove Function: List se item delete karna[cite: 6]
@@ -62,7 +62,7 @@ function removeProd(i) {
 // 4. Calculate Button: Packing logic apply karta hai[cite: 5, 6]
 document.getElementById('calcBtn').addEventListener('click', () => {
     if (productList.length === 0) {
-        alert("Pehle list mein products add karein!");
+        alert("Please add Product in list!");
         return;
     }
 
