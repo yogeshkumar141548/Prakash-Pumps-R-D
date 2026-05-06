@@ -1,0 +1,39 @@
+body { 
+    font-family: 'Segoe UI', Arial, sans-serif; 
+    background-color: #f8f9fa; 
+    padding: 20px; 
+    margin: 0;
+}
+.main-container { 
+    background: #fff; 
+    padding: 25px; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+    max-width: 1150px; 
+    margin: auto; 
+}
+h2, h3 { color: #333; margin-top: 0; }
+.table-section { margin-bottom: 30px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { border: 1px solid #dee2e6; padding: 12px; text-align: center; font-size: 14px; }
+th { background-color: #f1f3f5; font-weight: bold; }
+input, select { width: 90%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; }
+button { 
+    color: white; 
+    border: none; 
+    padding: 8px 15px; 
+    cursor: pointer; 
+    border-radius: 5px; 
+    font-weight: bold; 
+    margin: 2px;
+    transition: 0.2s;
+}
+button:hover { opacity: 0.85; }
+.status-dot { 
+    height: 15px; 
+    width: 15px; 
+    border-radius: 50%; 
+    display: inline-block; 
+}
+.green-dot { background-color: #28a745; }
+.red-dot { background-color: #dc3545; }

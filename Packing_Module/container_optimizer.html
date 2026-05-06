@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crate & Container Optimizer Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <h2>Container Load & Crate Optimizer</h2>
+
+        <!-- Input Section -->
+        <div class="table-section">
+            <table class="input-table">
+                <thead>
+                    <tr>
+                        <th>Container Size</th>
+                        <th>Product Name</th>
+                        <th>Length (mm)</th>
+                        <th>Width (mm)</th>
+                        <th>Height (mm)</th>
+                        <th>Quantity</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <select id="containerSize">
+                                <option value="20ft">20ft</option>
+                                <option value="40ft">40ft</option>
+                            </select>
+                        </td>
+                        <td><input type="text" id="pName" placeholder="Name"></td>
+                        <td><input type="number" id="pL" placeholder="L"></td>
+                        <td><input type="number" id="pW" placeholder="W"></td>
+                        <td><input type="number" id="pH" placeholder="H"></td>
+                        <td><input type="number" id="pQty" placeholder="Qty"></td>
+                        <td><button id="addBtn" style="background:#28a745">Add Product</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- List Section -->
+        <div class="table-section">
+            <h3>1. Added Products List</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Product Name</th>
+                        <th>Qty</th>
+                        <th>Dimensions</th>
+                        <th>Options</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody"></tbody>
+            </table>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="calcBtn" style="background:#007bff; padding: 12px 30px; font-size: 15px;">
+                    Calculate Final Packing Result
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Section (Initially Hidden) -->
+        <div class="table-section" id="resultArea" style="display:none; border-top: 3px solid #007bff; padding-top: 20px;">
+            <h3>2. Optimized Crate Distribution Results</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Product Name</th>
+                        <th>Inner Crate Size</th>
+                        <th>Pcs Per Crate</th>
+                        <th>Total Crates</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="resultTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
