@@ -1,69 +1,68 @@
-/* Container Box */
-.container-box { 
-    border: 8px solid #0f172a; 
-    background: #e2e8f0; 
-    min-height: 400px; 
-    display: flex; 
-    flex-wrap: wrap-reverse; 
-    padding: 15px; 
-    gap: 8px; 
-    overflow-y: auto; 
-    align-content: flex-start; 
-    border-radius: 20px;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+body { 
+    font-family: 'Inter', sans-serif; 
+    background-color: #f4f7fa; 
+    color: #334155;
 }
 
-/* Crate Styling */
+.dashboard-card {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.container-box { 
+    border: 2px solid #e2e8f0; 
+    background: #f8fafc; 
+    min-height: 420px; 
+    display: flex; 
+    flex-wrap: wrap-reverse; 
+    padding: 20px; 
+    gap: 12px; 
+    border-radius: 18px;
+}
+
 .crate-unit { 
-    background: #2563eb; 
+    background: #3b82f6; 
     color: white; 
-    border: 2px solid #1e3a8a; 
     display: flex; 
     flex-direction: column; 
     align-items: center; 
     justify-content: center; 
-    font-size: 10px; 
-    font-weight: 800; 
-    border-radius: 6px; 
-    box-shadow: 0 4px 0 #1e3a8a;
+    font-size: 11px; 
+    font-weight: 600; 
+    border-radius: 8px;
 }
 
-.residual-unit { background: #0891b2; border-color: #164e63; box-shadow: 0 4px 0 #164e63; }
-.oversize-unit { background: #ef4444 !important; border-color: #7f1d1d !important; box-shadow: 0 4px 0 #7f1d1d !important;}
+.residual-unit { background: #06b6d4; }
 
-/* Arrangement Badge - BIG & CLEAR */
-.arrangement-badge {
-    background: #f8fafc;
-    color: #0f172a;
-    padding: 10px 20px;
-    border-radius: 12px;
-    border: 2px solid #e2e8f0;
-    font-size: 18px; /* High Visibility */
-    font-weight: 900;
-    display: inline-block;
-    letter-spacing: 2px;
+.table-text-normal { 
+    font-size: 1rem; 
+    font-weight: 400; 
+    color: #334155; 
 }
 
-.inch-text {
-    font-size: 16px;
-    font-weight: 900;
-    color: #ea580c;
+.table-text-model { 
+    font-size: 1.1rem; 
+    font-weight: 600; 
+    color: #0f172a; 
 }
 
-.model-name {
-    font-size: 18px;
-    font-weight: 900;
-    color: #1e3a8a;
+.badge-arrangement { 
+    background: #f1f5f9; 
+    color: #475569; 
+    padding: 6px 14px; 
+    border-radius: 10px; 
+    font-weight: 600; 
+    font-size: 1rem;
+    border: 1px solid #e2e8f0;
 }
 
-/* Buttons */
-.btn-action {
-    padding: 8px 16px;
-    border-radius: 10px;
-    font-weight: 800;
-    font-size: 11px;
-    transition: all 0.2s;
+input {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    padding: 10px !important;
+    border-radius: 12px !important;
 }
-.edit-btn { background: #eff6ff; color: #2563eb; }
-.edit-btn:hover { background: #2563eb; color: white; }
-.del-btn { background: #fff1f2; color: #e11d48; }
-.del-btn:hover { background: #e11d48; color: white; }
