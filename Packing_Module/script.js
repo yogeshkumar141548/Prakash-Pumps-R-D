@@ -1,111 +1,126 @@
-let productList = [];
-const containerSpecs = {
-    '20ft': { l: 5898, w: 2352, h: 2393 },
-    '40ft': { l: 12032, w: 2352, h: 2393 }
+let itemsData = {};
+const containers = {
+    "20ft": { w: 235, h: 239, cap: 33.2 },
+    "40ft": { w: 235, h: 269, cap: 76.4 }
 };
 
-// 1. Add Product to List
-document.getElementById('addBtn').addEventListener('click', () => {
-    const name = document.getElementById('pName').value;
+function addAndPack() {
+    const m = document.getElementById('mName').value.toUpperCase().trim();
     const l = parseFloat(document.getElementById('pL').value);
     const w = parseFloat(document.getElementById('pW').value);
     const h = parseFloat(document.getElementById('pH').value);
-    const qty = parseInt(document.getElementById('pQty').value);
+    const q = parseInt(document.getElementById('pQty').value);
 
-    if (!name || isNaN(l) || isNaN(qty)) {
-        alert("Please Enter Full Product Detail!");
+    if (!m || isNaN(q) || isNaN(l)) {
+        alert("Enter all details correctly!");
         return;
     }
 
-    productList.push({ name, l, w, h, qty });
-    renderList();
-    clearInputs();
-    // when new item added the old reult will be hide
-    document.getElementById('resultArea').style.display = 'none';
-});
-
-function renderList() {
-    const body = document.getElementById('productTableBody');
-    body.innerHTML = '';
-    productList.forEach((p, i) => {
-        body.innerHTML += `<tr>
-            <td>${i+1}</td>
-            <td>${p.name}</td>
-            <td>${p.qty}</td>
-            <td>${p.l}x${p.w}x${p.h}</td>
-            <td>
-                <button onclick="editProd(${i})" style="background:#ffc107; color:#000;">Edit</button>
-                <button onclick="removeProd(${i})" style="background:#dc3545;">Remove</button>
-            </td>
-        </tr>`;
-    });
-}
-
-// 2. Edit Function: refresh table and ready to re-edit
-function editProd(i) {
-    const p = productList[i];
-    document.getElementById('pName').value = p.name;
-    document.getElementById('pL').value = p.l;
-    document.getElementById('pW').value = p.w;
-    document.getElementById('pH').value = p.h;
-    document.getElementById('pQty').value = p.qty;
-    removeProd(i); // remove old item for re-edit
-}
-
-// 3. Remove Function: List se item delete karna[cite: 6]
-function removeProd(i) {
-    productList.splice(i, 1);
-    renderList();
-    document.getElementById('resultArea').style.display = 'none'; // List update hone par result hide karein
-}
-
-// 4. Calculate Button: Packing logic apply karta hai[cite: 5, 6]
-document.getElementById('calcBtn').addEventListener('click', () => {
-    if (productList.length === 0) {
-        alert("Please add Product in list!");
-        return;
-    }
-
-    const selectedContainer = document.getElementById('containerSize').value;
-    const container = containerSpecs[selectedContainer];
-    const rBody = document.getElementById('resultTableBody');
-    
-    document.getElementById('resultArea').style.display = 'block';
-    rBody.innerHTML = '';
-
-    productList.forEach((p, i) => {
-        // Crate Optimization Logic
-        let maxL = 1100, maxW = 1100, maxH = 1000;
-        let fitsL = Math.floor(maxL / p.l) || 1;
-        let fitsW = Math.floor(maxW / p.w) || 1;
-        let fitsH = Math.floor(maxH / p.h) || 1;
-
-        let pcsPerCrate = fitsL * fitsW * fitsH;
-        let totalCrates = Math.ceil(p.qty / pcsPerCrate);
-        
-        // Auto-calculating Inner Crate Size
-        let innerL = (fitsL * p.l) + 15;
-        let innerW = (fitsW * p.w) + 15;
-        let innerH = (fitsH * p.h) + 15;
-
-        // Container Status Check
-        let status = (innerL <= container.l && innerW <= container.w) ? "green-dot" : "red-dot";
-
-        rBody.innerHTML += `<tr>
-            <td>${i+1}</td>
-            <td>${p.name}</td>
-            <td>${innerL}x${innerW}x${innerH}</td>
-            <td>${pcsPerCrate}</td>
-            <td>${totalCrates}</td>
-            <td><span class="status-dot ${status}"></span></td>
-        </tr>`;
-    });
-});
-
-function clearInputs() {
-    document.getElementById('pName').value = '';
-    document.getElementById('pL').value = '';
-    document.getElementById('pW').value = '';
-    document.getElementById('pH').value = '';
+    itemsData[m] = { l, w, h, qty: q };
+    runOptimization();
     document.getElementById('pQty').value = '';
+    document.getElementById('mName').focus();
+}
+
+function editItem(name) {
+    const itm = itemsData[name];
+    document.getElementById('mName').value = name;
+    document.getElementById('pL').value = itm.l;
+    document.getElementById('pW').value = itm.w;
+    document.getElementById('pH').value = itm.h;
+    document.getElementById('pQty').value = itm.qty;
+}
+
+function deleteItem(name) {
+    if(confirm(`Remove ${name}?`)) {
+        delete itemsData[name];
+        runOptimization();
+    }
+}
+
+function runOptimization() {
+    const tbody = document.getElementById('tableData');
+    const front = document.getElementById('frontView');
+    const top = document.getElementById('topView');
+    const cType = document.getElementById('contType').value;
+    const config = containers[cType];
+    
+    tbody.innerHTML = ''; front.innerHTML = ''; top.innerHTML = '';
+    let totalUsedCBM = 0;
+
+    for (let name in itemsData) {
+        let itm = itemsData[name];
+        
+        let rStd = Math.floor(1140 / itm.w) || 1; 
+        let cStd = Math.floor(780 / itm.h) || 1;
+        let lStd = Math.floor(950 / itm.l) || 1;
+        let fullQtyPerCrate = rStd * cStd * lStd;
+
+        let numFullCrates = Math.floor(itm.qty / fullQtyPerCrate);
+        let remainingQty = itm.qty % fullQtyPerCrate;
+
+        const createRow = (isRes, q, row, col, lay, isFirst) => {
+            let crateL = ((itm.l * lay) + 40) / 10;
+            let crateW = ((itm.w * row) + 40) / 10;
+            let crateH = ((itm.h * col) + 40) / 10;
+            let vol = (crateL * crateW * crateH) / 1000000;
+            totalUsedCBM += vol;
+
+            let oversize = (crateW > config.w || crateH > config.h);
+            let inch = `${(crateL/2.54).toFixed(1)}"x${(crateW/2.54).toFixed(1)}"x${(crateH/2.54).toFixed(1)}"`;
+
+            tbody.innerHTML += `
+                <tr class="bg-white">
+                    <td class="p-5">
+                        <div class="model-name">${name}</div>
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            ${isRes ? '⚠️ Residual Crate' : '✅ Standard Crate'}
+                        </div>
+                    </td>
+                    <td class="p-5 text-center">
+                        <div class="inch-text font-mono">${inch}</div>
+                    </td>
+                    <td class="p-5 text-center">
+                        <div class="arrangement-badge">${lay} x ${row} x ${col}</div>
+                    </td>
+                    <td class="p-5 text-center">
+                        <div class="text-xl font-black text-slate-700">${q}</div>
+                        <div class="text-[9px] font-bold text-slate-400">PIECES</div>
+                    </td>
+                    <td class="p-5 text-right">
+                        ${isFirst ? `
+                            <button onclick="editItem('${name}')" class="btn-action edit-btn mr-2">EDIT</button>
+                            <button onclick="deleteItem('${name}')" class="btn-action del-btn">DEL</button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `;
+
+            // Boxes for Visualizer
+            const b = document.createElement('div');
+            b.className = `crate-unit ${isRes ? 'residual-unit' : ''} ${oversize ? 'oversize-unit' : ''}`;
+            b.style.width = '45%'; b.style.height = isRes ? '40px' : '70px';
+            b.innerHTML = `<span>${name}</span><span>${q} PCS</span>`;
+            front.appendChild(b);
+            top.appendChild(b.cloneNode(true));
+        };
+
+        for(let i=0; i<numFullCrates; i++) createRow(false, fullQtyPerCrate, rStd, cStd, lStd, i===0);
+        if(remainingQty > 0) {
+            let resC = Math.ceil(remainingQty / (rStd * lStd));
+            if (resC > cStd) resC = cStd;
+            createRow(true, remainingQty, rStd, resC, lStd, numFullCrates===0);
+        }
+    }
+
+    // Update Stats
+    document.getElementById('usedCBM').innerText = totalUsedCBM.toFixed(2);
+    document.getElementById('freeCBM').innerText = (config.cap - totalUsedCBM).toFixed(2);
+    let p = (totalUsedCBM / config.cap * 100).toFixed(1);
+    document.getElementById('loadPerc').innerText = p + "%";
+    document.getElementById('percBox').className = p > 90 ? "bg-red-900 p-5 rounded-2xl border-b-4 border-red-500 shadow-sm" : "bg-slate-900 p-5 rounded-2xl border-b-4 border-green-500 shadow-sm text-white";
+}
+
+function resetData() { 
+    if(confirm("Confirm Delete All?")) { itemsData = {}; runOptimization(); }
 }
