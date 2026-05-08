@@ -1,21 +1,17 @@
 let itemsData = {};
-const containers = {
-    "20ft": { w: 235, h: 239, cap: 33.2 },
-    "40ft": { w: 235, h: 269, cap: 76.4 }
+const containers = { 
+    "20ft": { w: 235, h: 239, cap: 28.0 }, 
+    "40ft": { w: 235, h: 269, cap: 76.4 } 
 };
 
 function addAndPack() {
     const m = document.getElementById('mName').value.toUpperCase().trim();
-    const l = parseFloat(document.getElementById('pL').value);
-    const w = parseFloat(document.getElementById('pW').value);
-    const h = parseFloat(document.getElementById('pH').value);
-    const q = parseInt(document.getElementById('pQty').value);
+    const l = parseFloat(document.getElementById('pL').value), 
+          w = parseFloat(document.getElementById('pW').value), 
+          h = parseFloat(document.getElementById('pH').value), 
+          q = parseInt(document.getElementById('pQty').value);
 
-    if (!m || isNaN(q) || isNaN(l)) {
-        alert("Enter all details correctly!");
-        return;
-    }
-
+    if (!m || isNaN(q)) return;
     itemsData[m] = { l, w, h, qty: q };
     runOptimization();
     document.getElementById('pQty').value = '';
@@ -25,102 +21,75 @@ function addAndPack() {
 function editItem(name) {
     const itm = itemsData[name];
     document.getElementById('mName').value = name;
-    document.getElementById('pL').value = itm.l;
-    document.getElementById('pW').value = itm.w;
-    document.getElementById('pH').value = itm.h;
+    document.getElementById('pL').value = itm.l; 
+    document.getElementById('pW').value = itm.w; 
+    document.getElementById('pH').value = itm.h; 
     document.getElementById('pQty').value = itm.qty;
 }
 
 function deleteItem(name) {
-    if(confirm(`Remove ${name}?`)) {
-        delete itemsData[name];
-        runOptimization();
+    if(confirm(`Remove ${name}?`)) { 
+        delete itemsData[name]; 
+        runOptimization(); 
     }
 }
 
 function runOptimization() {
-    const tbody = document.getElementById('tableData');
-    const front = document.getElementById('frontView');
-    const top = document.getElementById('topView');
-    const cType = document.getElementById('contType').value;
-    const config = containers[cType];
+    const tbody = document.getElementById('tableData'), 
+          front = document.getElementById('frontView'), 
+          top = document.getElementById('topView'), 
+          cType = document.getElementById('contType').value, 
+          config = containers[cType];
     
-    tbody.innerHTML = ''; front.innerHTML = ''; top.innerHTML = '';
-    let totalUsedCBM = 0;
+    tbody.innerHTML = ''; 
+    front.innerHTML = ''; 
+    top.innerHTML = '';
+    let totalCBM = 0;
 
     for (let name in itemsData) {
         let itm = itemsData[name];
-        
-        let rStd = Math.floor(1140 / itm.w) || 1; 
-        let cStd = Math.floor(780 / itm.h) || 1;
-        let lStd = Math.floor(950 / itm.l) || 1;
-        let fullQtyPerCrate = rStd * cStd * lStd;
+        let rS = Math.floor(1140/itm.w)||1, 
+            cS = Math.floor(780/itm.h)||1, 
+            lS = Math.floor(950/itm.l)||1;
+        let fullQ = rS * cS * lS;
+        let numFull = Math.floor(itm.qty / fullQ), 
+            remQ = itm.qty % fullQ;
 
-        let numFullCrates = Math.floor(itm.qty / fullQtyPerCrate);
-        let remainingQty = itm.qty % fullQtyPerCrate;
-
-        const createRow = (isRes, q, row, col, lay, isFirst) => {
-            let crateL = ((itm.l * lay) + 40) / 10;
-            let crateW = ((itm.w * row) + 40) / 10;
-            let crateH = ((itm.h * col) + 40) / 10;
-            let vol = (crateL * crateW * crateH) / 1000000;
-            totalUsedCBM += vol;
-
-            let oversize = (crateW > config.w || crateH > config.h);
-            let inch = `${(crateL/2.54).toFixed(1)}"x${(crateW/2.54).toFixed(1)}"x${(crateH/2.54).toFixed(1)}"`;
-
+        const draw = (isR, q, r, c, l, isF) => {
+            let cL = (itm.l*l+40)/10, 
+                cW = (itm.w*r+40)/10, 
+                cH = (itm.h*c+40)/10, 
+                vol = (cL*cW*cH)/1000000;
+            totalCBM += vol;
+            let inch = `${(cL/2.54).toFixed(1)}x${(cW/2.54).toFixed(1)}x${(cH/2.54).toFixed(1)}`;
+            
             tbody.innerHTML += `
-                <tr class="bg-white">
-                    <td class="p-5">
-                        <div class="model-name">${name}</div>
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            ${isRes ? '⚠️ Residual Crate' : '✅ Standard Crate'}
-                        </div>
-                    </td>
-                    <td class="p-5 text-center">
-                        <div class="inch-text font-mono">${inch}</div>
-                    </td>
-                    <td class="p-5 text-center">
-                        <div class="arrangement-badge">${lay} x ${row} x ${col}</div>
-                    </td>
-                    <td class="p-5 text-center">
-                        <div class="text-xl font-black text-slate-700">${q}</div>
-                        <div class="text-[9px] font-bold text-slate-400">PIECES</div>
-                    </td>
-                    <td class="p-5 text-right">
-                        ${isFirst ? `
-                            <button onclick="editItem('${name}')" class="btn-action edit-btn mr-2">EDIT</button>
-                            <button onclick="deleteItem('${name}')" class="btn-action del-btn">DEL</button>
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-6 table-text-model">${name}</td>
+                    <td class="p-6 table-text-normal text-black">${inch}"</td>
+                    <td class="p-6 text-center"><span class="badge-arrangement">${l}x${r}x${c}</span></td>
+                    <td class="p-6 text-center table-text-normal">${q}</td>
+                    <td class="p-6 text-right">
+                        ${isF ? `
+                            <button onclick="editItem('${name}')" class="text-blue-600 font-bold text-[10px] uppercase mr-4">Edit</button>
+                            <button onclick="deleteItem('${name}')" class="text-red-400 font-bold text-[10px] uppercase">Del</button>
                         ` : ''}
                     </td>
-                </tr>
-            `;
-
-            // Boxes for Visualizer
-            const b = document.createElement('div');
-            b.className = `crate-unit ${isRes ? 'residual-unit' : ''} ${oversize ? 'oversize-unit' : ''}`;
-            b.style.width = '45%'; b.style.height = isRes ? '40px' : '70px';
-            b.innerHTML = `<span>${name}</span><span>${q} PCS</span>`;
-            front.appendChild(b);
-            top.appendChild(b.cloneNode(true));
+                </tr>`;
+            
+            const box = document.createElement('div');
+            box.className = `crate-unit ${isR?'residual-unit':''}`;
+            box.style.width = '45%'; 
+            box.style.height = isR ? '55px' : '90px';
+            box.innerHTML = `<span class="uppercase">${name}</span><span class="text-[8px] opacity-60">${q} PCS</span>`;
+            front.appendChild(box); 
+            top.appendChild(box.cloneNode(true));
         };
 
-        for(let i=0; i<numFullCrates; i++) createRow(false, fullQtyPerCrate, rStd, cStd, lStd, i===0);
-        if(remainingQty > 0) {
-            let resC = Math.ceil(remainingQty / (rStd * lStd));
-            if (resC > cStd) resC = cStd;
-            createRow(true, remainingQty, rStd, resC, lStd, numFullCrates===0);
-        }
+        for(let i=0; i<numFull; i++) draw(false, fullQ, rS, cS, lS, i===0);
+        if(remQ > 0) draw(true, remQ, rS, Math.ceil(remQ/(rS*lS)), lS, numFull===0);
     }
-
-    // Update Stats
-    document.getElementById('usedCBM').innerText = totalUsedCBM.toFixed(2);
-    document.getElementById('freeCBM').innerText = (config.cap - totalUsedCBM).toFixed(2);
-    let p = (totalUsedCBM / config.cap * 100).toFixed(1);
-    document.getElementById('loadPerc').innerText = p + "%";
-    document.getElementById('percBox').className = p > 90 ? "bg-red-900 p-5 rounded-2xl border-b-4 border-red-500 shadow-sm" : "bg-slate-900 p-5 rounded-2xl border-b-4 border-green-500 shadow-sm text-white";
-}
-
-function resetData() { 
-    if(confirm("Confirm Delete All?")) { itemsData = {}; runOptimization(); }
+    document.getElementById('usedCBM').innerText = totalCBM.toFixed(2);
+    document.getElementById('freeCBM').innerText = (config.cap - totalCBM).toFixed(2);
+    document.getElementById('loadPerc').innerText = (totalCBM / config.cap * 100).toFixed(1) + "%";
 }
