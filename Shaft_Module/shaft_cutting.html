@@ -17,7 +17,6 @@
         <section class="section">
             <h2>1. Shaft Details</h2>
             <div class="input-group">
-                <!-- Select or type the specific pump model -->
                 <input id="model" list="modelList" placeholder="Select or Type Model" oninput="autoFillDetails()">
                 <datalist id="modelList"></datalist>
                 
@@ -50,39 +49,36 @@
         <section class="section">
             <h2>2. Raw Material (Round Bar) Details</h2>
             <div class="input-group">
-                <input id="barLength" type="number" placeholder="Raw Bar Length">
+                <!-- step="any" allows decimal values like 20.1 -->
+                <input id="barLength" type="number" placeholder="Raw Bar Length" step="any">
                 <select id="barUnit"></select>
-                <!-- Changed 'Calculate Diameter-wise Plan' for better English clarity -->
-                <button onclick="perfectOptimize()" class="btn-optimize">🚀 Calculate Optimized Cutting Plan</button>
+                <button onclick="perfectOptimize()" class="btn-optimize">🚀 Calculate Optimized Plan</button>
             </div>
             <div id="result"></div>
-            <!-- Button For Pdf Download -->
-<button onclick="downloadPDF()">Download PDF</button>
             
-<a href="../index.html" class="back-home-btn">Back to Home</a>
-
-            <script>
-function downloadPDF() {
-    var printContent = document.getElementById("result").innerHTML;
-    var originalContent = document.body.innerHTML;
-
-    document.body.innerHTML = printContent;
-
-    window.print();
-
-    document.body.innerHTML = originalContent;
-}
-</script>
-            
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button onclick="downloadPDF()" class="btn-primary" style="background: #28a745;">Download PDF</button>
+                <a href="../index.html" class="back-home-btn" style="text-decoration: none; padding: 10px 20px; background: #6c757d; color: white; border-radius: 5px;">Back to Home</a>
+            </div>
         </section>
     </div>
+
     <script src="script.js"></script>
-    <body>
-
-</body>
-<div class="container">
-</div>
-
-</body>
+    <script>
+        function downloadPDF() {
+            const printContent = document.getElementById("result").innerHTML;
+            if (!printContent) return alert("Pehle plan calculate karein!");
+            
+            const originalContent = document.body.innerHTML;
+            document.body.innerHTML = `
+                <div style="padding: 20px;">
+                    <h2 style="text-align:center;">Prakash Pumps - Cutting Plan</h2>
+                    ${printContent}
+                </div>`;
+            window.print();
+            document.body.innerHTML = originalContent;
+            window.location.reload(); // To restore event listeners
+        }
+    </script>
 </body>
 </html>
