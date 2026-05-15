@@ -51,6 +51,7 @@ const excelData = [
 let dataList = JSON.parse(localStorage.getItem("models")) || [];
 let rawBars = []; 
 let editIndex = -1;
+let rawEditIndex = -1;
 
 window.onload = function() {
     fillUnits();
@@ -61,10 +62,8 @@ window.onload = function() {
 
 function fillUnits() {
     const options = Object.keys(units).map(k => `<option value="${k}">${k}</option>`).join("");
-    const uomSelect = document.getElementById("uom");
-    const barUnitSelect = document.getElementById("barUnit");
-    if(uomSelect) uomSelect.innerHTML = options;
-    if(barUnitSelect) barUnitSelect.innerHTML = options;
+    if(document.getElementById("uom")) document.getElementById("uom").innerHTML = options;
+    if(document.getElementById("barUnit")) document.getElementById("barUnit").innerHTML = options;
 }
 
 function loadModelDropdown() {
@@ -84,7 +83,7 @@ function autoFillDetails() {
 
 function convert(val, from, to) { return (val * units[from]) / units[to]; }
 
-// --- Required Shaft Management ---
+// --- Required Shaft Management (Table 1) ---
 function addData() {
     const m = document.getElementById("model").value.trim();
     const d = parseFloat(document.getElementById("diameter").value);
@@ -92,7 +91,7 @@ function addData() {
     const u = document.getElementById("uom").value;
     const q = parseInt(document.getElementById("qty").value) || 1;
 
-    if (!m || isNaN(l) || isNaN(d)) return alert("Please fill in all shaft details correctly.");
+    if (!m || isNaN(l) || isNaN(d)) return alert("Please enter all shaft details correctly.");
 
     const newData = { model: m, dia: d, length: l, uom: u, qty: q };
 
@@ -153,7 +152,7 @@ function editData(index) {
 }
 
 function deleteData(i) { 
-    if(confirm("Are you sure you want to delete this item?")) { 
+    if(confirm("Are you sure you want to delete this shaft?")) { 
         dataList.splice(i, 1); 
         saveAndRefresh(); 
     } 
@@ -164,7 +163,7 @@ function saveAndRefresh() {
     renderTable();
 }
 
-// --- Raw Stock Functions ---
+// --- Raw Stock Management (Table 2) ---
 function addRawBar() {
     const d = parseFloat(document.getElementById("barDia").value);
     const l = parseFloat(document.getElementById("barLength").value);
@@ -172,35 +171,61 @@ function addRawBar() {
 
     if (isNaN(d) || isNaN(l)) return alert("Please enter valid Round Bar Diameter and Length.");
 
-    rawBars.push({ 
-        dia: d, 
-        length: l, 
-        uom: u, 
-        lengthMM: convert(l, u, "mm") 
-    });
+    const newRawData = { dia: d, length: l, uom: u, lengthMM: convert(l, u, "mm") };
+
+    if (rawEditIndex === -1) {
+        rawBars.push(newRawData);
+    } else {
+        rawBars[rawEditIndex] = newRawData;
+        rawEditIndex = -1;
+        document.getElementById("addBarBtn").textContent = "Add to Stock";
+        document.getElementById("addBarBtn").style.background = "#28a745";
+    }
     
     renderRawBarTable();
+    document.getElementById("barDia").value = "";
     document.getElementById("barLength").value = "";
 }
 
 function renderRawBarTable() {
     const table = document.getElementById("rawBarTable");
     if (!table) return;
+
+    if (rawBars.length === 0) {
+        table.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888; padding:15px;">No stock available.</td></tr>`;
+        return;
+    }
+
     table.innerHTML = rawBars.map((bar, index) => `
         <tr>
-            <td style="font-weight:bold;">${bar.dia} mm</td>
-            <td>${bar.length} ${bar.uom}</td>
-            <td style="text-align:right;">
-                <button onclick="rawBars.splice(${index},1); renderRawBarTable();" style="color:#dc3545; background:none; border:none; cursor:pointer; font-weight:bold; font-size:13px;">[Remove]</button>
+            <td style="font-weight:bold; color:#2c3e50;">${bar.dia} mm</td>
+            <td>${bar.length}</td>
+            <td><span style="background:#f1f2f6; padding:2px 8px; border-radius:4px; font-size:13px;">${bar.uom}</span></td>
+            <td>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="editRawBar(${index})" style="background:#ffc107; color:#000; padding:5px 10px; border-radius:4px; font-size:11px; border:none; cursor:pointer; font-weight:bold;">Edit</button>
+                    <button onclick="rawBars.splice(${index},1); renderRawBarTable();" style="background:#dc3545; color:#fff; padding:5px 10px; border-radius:4px; font-size:11px; border:none; cursor:pointer; font-weight:bold;">Del</button>
+                </div>
             </td>
         </tr>
     `).join("");
 }
 
-// --- Optimization & Professional Result ---
+function editRawBar(index) {
+    const bar = rawBars[index];
+    document.getElementById("barDia").value = bar.dia;
+    document.getElementById("barLength").value = bar.length;
+    document.getElementById("barUnit").value = bar.uom;
+    rawEditIndex = index;
+    const btn = document.getElementById("addBarBtn");
+    btn.textContent = "Update Bar";
+    btn.style.background = "#f39c12"; // Orange for update
+}
+
+// --- Optimization & Technical Report ---
 function perfectOptimize() {
     const resDiv = document.getElementById("result");
-    if (dataList.length === 0 || rawBars.length === 0) return alert("Please add Required Shafts and Stock Bars first.");
+    if (dataList.length === 0 || rawBars.length === 0) return alert("Please add Shafts and Stock first.");
 
     const shaftGroups = {};
     dataList.forEach(item => {
@@ -237,7 +262,7 @@ function perfectOptimize() {
                     break;
                 }
             }
-            if (!placed) html += `<p style="color:orange; font-weight:bold; padding:5px; border:1px solid orange; border-radius:4px; margin-bottom:10px;">⚠️ Warning: Stock exhausted for ${dia}mm shaft (${shaft.model}).</p>`;
+            if (!placed) html += `<p style="color:orange; font-weight:bold; margin-bottom:10px;">⚠️ Warning: Stock exhausted for ${dia}mm shaft (${shaft.model}).</p>`;
         });
 
         html += `<h3 style="background:#2c3e50; color:#fff; padding:10px 15px; margin-top:25px; border-radius:5px;">MATERIAL: ROUND BAR - DIA ${dia}MM</h3>`;
@@ -252,29 +277,29 @@ function perfectOptimize() {
             });
 
             html += `
-                <div style="margin-bottom: 25px; page-break-inside: avoid; border:1px solid #ccc; padding:15px; border-radius:8px; background:#fff;">
+                <div style="margin-bottom: 25px; border:1px solid #ccc; padding:15px; border-radius:8px; background:#fff;">
                     <p style="margin-bottom:10px; font-size:16px;"><strong>STOCK BAR #${idx + 1}</strong> (Total: ${bar.length}${bar.uom})</p>
                     <table style="width:100%; border-collapse: collapse; border: 1px solid #333;">
                         <thead>
                             <tr style="background:#f4f7f8;">
-                                <th style="border:1px solid #333; padding:8px; text-align:left;">Model Name & Size</th>
-                                <th style="border:1px solid #333; padding:8px; text-align:center; width:100px;">Quantity</th>
+                                <th style="border:1px solid #333; padding:8px; text-align:left;">Model & Size</th>
+                                <th style="border:1px solid #333; padding:8px; text-align:center; width:100px;">Qty</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${Object.keys(summary).map(key => `
                                 <tr>
                                     <td style="border:1px solid #333; padding:8px;">${key}</td>
-                                    <td style="border:1px solid #333; padding:8px; text-align:center;">${summary[key]} pcs</td>
+                                    <td style="border:1px solid #333; padding:8px; text-align:center;">${summary[key]}</td>
                                 </tr>`).join("")}
                         </tbody>
                         <tfoot>
                             <tr style="background:#fdfdfd;">
-                                <td style="border:1px solid #333; padding:8px; text-align:right;"><b>Total Used:</b></td>
+                                <td style="border:1px solid #333; padding:8px; text-align:right;"><b>Used:</b></td>
                                 <td style="border:1px solid #333; padding:8px; text-align:center;"><b>${(bar.lengthMM - bar.remMM).toFixed(1)} mm</b></td>
                             </tr>
                             <tr style="background:#fff5f5;">
-                                <td style="border:1px solid #333; padding:8px; text-align:right;"><b>Scrap (Wastage):</b></td>
+                                <td style="border:1px solid #333; padding:8px; text-align:right;"><b>Scrap:</b></td>
                                 <td style="border:1px solid #333; padding:8px; text-align:center; color:#d9534f; font-weight:bold;">${bar.remMM.toFixed(1)} mm</td>
                             </tr>
                         </tfoot>
@@ -284,14 +309,8 @@ function perfectOptimize() {
     });
 
     if(!foundMatch) {
-        resDiv.innerHTML = `<p style="color:#d9534f; text-align:center; padding:20px; border:2px dashed #d9534f; border-radius:8px; background:#fff5f5; font-weight:bold;">⚠️ Error: Stock Bar diameter does not match any required shafts!</p>`;
+        resDiv.innerHTML = `<p style="color:#d9534f; text-align:center; padding:20px; border:2px dashed #d9534f; border-radius:8px;">⚠️ Error: Raw stock diameter does not match required shafts!</p>`;
     } else {
         resDiv.innerHTML = html;
     }
-}
-
-function downloadPDF() {
-    const res = document.getElementById("result").innerHTML;
-    if(!res || res.trim() === "") return alert("Please generate a plan first by clicking 'Calculate'.");
-    window.print();
 }
