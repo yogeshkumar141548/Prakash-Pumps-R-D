@@ -49,7 +49,7 @@ const excelData = [
 ];
 
 let dataList = JSON.parse(localStorage.getItem("models")) || [];
-let rawBars = []; // Array for multiple stock bars
+let rawBars = []; 
 let editIndex = -1;
 
 window.onload = function() {
@@ -61,8 +61,10 @@ window.onload = function() {
 
 function fillUnits() {
     const options = Object.keys(units).map(k => `<option value="${k}">${k}</option>`).join("");
-    if(document.getElementById("uom")) document.getElementById("uom").innerHTML = options;
-    if(document.getElementById("barUnit")) document.getElementById("barUnit").innerHTML = options;
+    const uomSelect = document.getElementById("uom");
+    const barUnitSelect = document.getElementById("barUnit");
+    if(uomSelect) uomSelect.innerHTML = options;
+    if(barUnitSelect) barUnitSelect.innerHTML = options;
 }
 
 function loadModelDropdown() {
@@ -82,7 +84,7 @@ function autoFillDetails() {
 
 function convert(val, from, to) { return (val * units[from]) / units[to]; }
 
-// --- Shaft List Functions ---
+// --- Required Shaft Management ---
 function addData() {
     const m = document.getElementById("model").value.trim();
     const d = parseFloat(document.getElementById("diameter").value);
@@ -90,12 +92,17 @@ function addData() {
     const u = document.getElementById("uom").value;
     const q = parseInt(document.getElementById("qty").value) || 1;
 
-    if (!m || isNaN(l) || isNaN(d)) return alert("Shaft ki details sahi se bharein.");
+    if (!m || isNaN(l) || isNaN(d)) return alert("Please fill in all shaft details correctly.");
 
     const newData = { model: m, dia: d, length: l, uom: u, qty: q };
 
-    if (editIndex === -1) dataList.push(newData);
-    else { dataList[editIndex] = newData; editIndex = -1; document.getElementById("addBtn").textContent = "Add Shaft"; }
+    if (editIndex === -1) {
+        dataList.push(newData);
+    } else {
+        dataList[editIndex] = newData;
+        editIndex = -1;
+        document.getElementById("addBtn").textContent = "Add Shaft";
+    }
 
     saveAndRefresh();
     clearInputs();
@@ -111,21 +118,46 @@ function clearInputs() {
 function renderTable() {
     const table = document.getElementById("tableData");
     if (!table) return;
+
+    if (dataList.length === 0) {
+        table.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#888; padding:20px;">No shafts added yet.</td></tr>`;
+        return;
+    }
+
     table.innerHTML = dataList.map((item, index) => `
         <tr>
-            <td><strong>${item.model}</strong></td>
+            <td style="font-weight:bold; color:#2c3e50;">${item.model}</td>
             <td>${item.dia} mm</td>
-            <td>${item.length} ${item.uom}</td>
+            <td>${item.length}</td>
+            <td><span style="background:#e9f2ff; padding:2px 8px; border-radius:4px; border:1px solid #cce0ff; font-size:13px;">${item.uom}</span></td>
             <td>${item.qty} pcs</td>
             <td>
-                <button onclick="editData(${index})" class="btn-sm btn-warning">Edit</button>
-                <button onclick="deleteData(${index})" class="btn-sm btn-danger">Del</button>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="editData(${index})" style="background:#ffc107; color:#000; padding:5px 10px; border-radius:4px; font-size:12px; border:none; cursor:pointer; font-weight:bold;">Edit</button>
+                    <button onclick="deleteData(${index})" style="background:#dc3545; color:#fff; padding:5px 10px; border-radius:4px; font-size:12px; border:none; cursor:pointer; font-weight:bold;">Del</button>
+                </div>
             </td>
         </tr>
     `).join("");
 }
 
-function deleteData(i) { if(confirm("Delete?")) { dataList.splice(i, 1); saveAndRefresh(); } }
+function editData(index) {
+    const item = dataList[index];
+    document.getElementById("model").value = item.model;
+    document.getElementById("diameter").value = item.dia;
+    document.getElementById("length").value = item.length;
+    document.getElementById("uom").value = item.uom;
+    document.getElementById("qty").value = item.qty;
+    editIndex = index;
+    document.getElementById("addBtn").textContent = "Update Shaft";
+}
+
+function deleteData(i) { 
+    if(confirm("Are you sure you want to delete this item?")) { 
+        dataList.splice(i, 1); 
+        saveAndRefresh(); 
+    } 
+}
 
 function saveAndRefresh() {
     localStorage.setItem("models", JSON.stringify(dataList));
@@ -138,7 +170,7 @@ function addRawBar() {
     const l = parseFloat(document.getElementById("barLength").value);
     const u = document.getElementById("barUnit").value;
 
-    if (isNaN(d) || isNaN(l)) return alert("Round Bar ka Dia aur Length bharein.");
+    if (isNaN(d) || isNaN(l)) return alert("Please enter valid Round Bar Diameter and Length.");
 
     rawBars.push({ 
         dia: d, 
@@ -156,9 +188,11 @@ function renderRawBarTable() {
     if (!table) return;
     table.innerHTML = rawBars.map((bar, index) => `
         <tr>
-            <td><b>${bar.dia} mm</b></td>
+            <td style="font-weight:bold;">${bar.dia} mm</td>
             <td>${bar.length} ${bar.uom}</td>
-            <td><button onclick="rawBars.splice(${index},1); renderRawBarTable();" style="color:red; background:none; border:none; cursor:pointer;">Remove</button></td>
+            <td style="text-align:right;">
+                <button onclick="rawBars.splice(${index},1); renderRawBarTable();" style="color:#dc3545; background:none; border:none; cursor:pointer; font-weight:bold; font-size:13px;">[Remove]</button>
+            </td>
         </tr>
     `).join("");
 }
@@ -166,9 +200,8 @@ function renderRawBarTable() {
 // --- Optimization & Professional Result ---
 function perfectOptimize() {
     const resDiv = document.getElementById("result");
-    if (dataList.length === 0 || rawBars.length === 0) return alert("Pehle Required Shafts aur Stock Bars add karein.");
+    if (dataList.length === 0 || rawBars.length === 0) return alert("Please add Required Shafts and Stock Bars first.");
 
-    // Grouping shafts by Diameter
     const shaftGroups = {};
     dataList.forEach(item => {
         if (!shaftGroups[item.dia]) shaftGroups[item.dia] = [];
@@ -176,7 +209,6 @@ function perfectOptimize() {
         for(let i=0; i<item.qty; i++) shaftGroups[item.dia].push({ ...item, sizeMM });
     });
 
-    // Professional Header for PDF
     let html = `
         <div style="text-align:center; border-bottom: 2px solid #333; padding-bottom:15px; margin-bottom:20px;">
             <h1 style="margin:0; font-size: 24px; color: #2c3e50;">PRAKASH PUMPS - R&D CENTER</h1>
@@ -188,13 +220,11 @@ function perfectOptimize() {
 
     Object.keys(shaftGroups).forEach(dia => {
         let shafts = shaftGroups[dia].sort((a, b) => b.sizeMM - a.sizeMM);
-        
-        // Finding matching stock bars for this diameter
         let stock = rawBars
             .filter(b => b.dia == dia)
             .map(b => ({ ...b, remMM: b.lengthMM, cuts: [] }));
 
-        if (stock.length === 0) return; // Skip if no stock for this dia
+        if (stock.length === 0) return; 
         foundMatch = true;
 
         shafts.forEach(shaft => {
@@ -207,10 +237,10 @@ function perfectOptimize() {
                     break;
                 }
             }
-            if (!placed) html += `<p style="color:orange;">⚠️ Warning: ${dia}mm shaft (${shaft.model}) ke liye stock kam hai.</p>`;
+            if (!placed) html += `<p style="color:orange; font-weight:bold; padding:5px; border:1px solid orange; border-radius:4px; margin-bottom:10px;">⚠️ Warning: Stock exhausted for ${dia}mm shaft (${shaft.model}).</p>`;
         });
 
-        html += `<h3 style="background:#2c3e50; color:#fff; padding:8px 12px; margin-top:25px;">MATERIAL: ROUND BAR - DIA ${dia}MM</h3>`;
+        html += `<h3 style="background:#2c3e50; color:#fff; padding:10px 15px; margin-top:25px; border-radius:5px;">MATERIAL: ROUND BAR - DIA ${dia}MM</h3>`;
 
         stock.forEach((bar, idx) => {
             if (bar.cuts.length === 0) return;
@@ -222,11 +252,11 @@ function perfectOptimize() {
             });
 
             html += `
-                <div style="margin-bottom: 20px; page-break-inside: avoid;">
-                    <p style="margin-bottom:8px;"><strong>STOCK BAR #${idx + 1}</strong> (Total: ${bar.length}${bar.uom})</p>
+                <div style="margin-bottom: 25px; page-break-inside: avoid; border:1px solid #ccc; padding:15px; border-radius:8px; background:#fff;">
+                    <p style="margin-bottom:10px; font-size:16px;"><strong>STOCK BAR #${idx + 1}</strong> (Total: ${bar.length}${bar.uom})</p>
                     <table style="width:100%; border-collapse: collapse; border: 1px solid #333;">
                         <thead>
-                            <tr style="background:#ecf0f1;">
+                            <tr style="background:#f4f7f8;">
                                 <th style="border:1px solid #333; padding:8px; text-align:left;">Model Name & Size</th>
                                 <th style="border:1px solid #333; padding:8px; text-align:center; width:100px;">Quantity</th>
                             </tr>
@@ -239,13 +269,13 @@ function perfectOptimize() {
                                 </tr>`).join("")}
                         </tbody>
                         <tfoot>
-                            <tr style="background:#f9f9f9;">
+                            <tr style="background:#fdfdfd;">
                                 <td style="border:1px solid #333; padding:8px; text-align:right;"><b>Total Used:</b></td>
                                 <td style="border:1px solid #333; padding:8px; text-align:center;"><b>${(bar.lengthMM - bar.remMM).toFixed(1)} mm</b></td>
                             </tr>
-                            <tr style="background:#fff2f2;">
+                            <tr style="background:#fff5f5;">
                                 <td style="border:1px solid #333; padding:8px; text-align:right;"><b>Scrap (Wastage):</b></td>
-                                <td style="border:1px solid #333; padding:8px; text-align:center; color:red;"><b>${bar.remMM.toFixed(1)} mm</b></td>
+                                <td style="border:1px solid #333; padding:8px; text-align:center; color:#d9534f; font-weight:bold;">${bar.remMM.toFixed(1)} mm</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -254,7 +284,7 @@ function perfectOptimize() {
     });
 
     if(!foundMatch) {
-        resDiv.innerHTML = `<p style="color:red; text-align:center; padding:20px; border:1px solid red;">⚠️ Error: Add kiye gaye Stock Bars ka Diameter required shafts se match nahi ho raha!</p>`;
+        resDiv.innerHTML = `<p style="color:#d9534f; text-align:center; padding:20px; border:2px dashed #d9534f; border-radius:8px; background:#fff5f5; font-weight:bold;">⚠️ Error: Stock Bar diameter does not match any required shafts!</p>`;
     } else {
         resDiv.innerHTML = html;
     }
@@ -262,6 +292,6 @@ function perfectOptimize() {
 
 function downloadPDF() {
     const res = document.getElementById("result").innerHTML;
-    if(!res || res.trim() === "") return alert("Pehle plan calculate karein.");
+    if(!res || res.trim() === "") return alert("Please generate a plan first by clicking 'Calculate'.");
     window.print();
 }
