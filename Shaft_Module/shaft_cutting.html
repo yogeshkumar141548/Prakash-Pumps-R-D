@@ -76,12 +76,30 @@
             <button onclick="perfectOptimize()" class="btn-optimize" style="margin-top:20px; width:100%; font-size:1.1em;">🚀 Run Optimization</button>
         </section>
 
-        <div id="result"></div>
-        <button onclick="downloadPDF()" class="btn-primary" style="margin-top:20px;">Download Report (PDF)</button>
-        <br><br>
-        <a href="../index.html" class="back-home-btn">Back to Home</a>
+        
+
+        <section class="section">
+            <div id="result">
+            
+            </div>
+            
+            <div class="no-print" style="margin-top: 20px; display: flex; gap: 10px;">
+                <button onclick="downloadPDF()" class="btn-primary" style="background: #28a745;">Download Report (PDF)</button>
+                <a href="../index.html" class="back-home-btn" style="text-decoration: none; padding: 10px 20px; background: #6c757d; color: white; border-radius: 5px;">Back to Home</a>
+            </div>
+        </section>
     </div>
 
     <script src="script.js"></script>
+    
+    <script>
+        function downloadPDF() {
+            const resultElement = document.getElementById("result");
+            if (!resultElement || resultElement.innerHTML.trim() === "") {
+                return alert("please click 'calculate button'!");
+            }
+            window.print();
+        }
+    </script>
 </body>
 </html>
