@@ -49,21 +49,20 @@ const excelData = [
 ];
 
 let dataList = JSON.parse(localStorage.getItem("models")) || [];
+let rawBars = []; // Array for multiple stock bars
 let editIndex = -1;
 
 window.onload = function() {
     fillUnits();
     renderTable();
     loadModelDropdown();
+    renderRawBarTable();
 };
 
 function fillUnits() {
-    const u = document.getElementById("uom");
-    const b = document.getElementById("barUnit");
-    if (!u || !b) return;
     const options = Object.keys(units).map(k => `<option value="${k}">${k}</option>`).join("");
-    u.innerHTML = options;
-    b.innerHTML = options;
+    if(document.getElementById("uom")) document.getElementById("uom").innerHTML = options;
+    if(document.getElementById("barUnit")) document.getElementById("barUnit").innerHTML = options;
 }
 
 function loadModelDropdown() {
@@ -83,6 +82,7 @@ function autoFillDetails() {
 
 function convert(val, from, to) { return (val * units[from]) / units[to]; }
 
+// --- Shaft List Functions ---
 function addData() {
     const m = document.getElementById("model").value.trim();
     const d = parseFloat(document.getElementById("diameter").value);
@@ -90,12 +90,12 @@ function addData() {
     const u = document.getElementById("uom").value;
     const q = parseInt(document.getElementById("qty").value) || 1;
 
-    if (!m || isNaN(l) || isNaN(d)) return alert("Saari details bharein.");
+    if (!m || isNaN(l) || isNaN(d)) return alert("Shaft ki details sahi se bharein.");
 
     const newData = { model: m, dia: d, length: l, uom: u, qty: q };
 
     if (editIndex === -1) dataList.push(newData);
-    else { dataList[editIndex] = newData; editIndex = -1; document.getElementById("addBtn").textContent = "Add / Update"; }
+    else { dataList[editIndex] = newData; editIndex = -1; document.getElementById("addBtn").textContent = "Add Shaft"; }
 
     saveAndRefresh();
     clearInputs();
@@ -115,26 +115,14 @@ function renderTable() {
         <tr>
             <td><strong>${item.model}</strong></td>
             <td>${item.dia} mm</td>
-            <td>${item.length}</td>
-            <td>${item.uom}</td>
+            <td>${item.length} ${item.uom}</td>
             <td>${item.qty} pcs</td>
             <td>
-                <button onclick="editData(${index})" class="btn-sm btn-warning" style="background:#ffc107; padding:5px 10px; border:none; border-radius:4px; cursor:pointer;">Edit</button>
-                <button onclick="deleteData(${index})" class="btn-sm btn-danger" style="background:#dc3545; color:white; padding:5px 10px; border:none; border-radius:4px; cursor:pointer;">Del</button>
+                <button onclick="editData(${index})" class="btn-sm btn-warning">Edit</button>
+                <button onclick="deleteData(${index})" class="btn-sm btn-danger">Del</button>
             </td>
         </tr>
     `).join("");
-}
-
-function editData(i) {
-    const item = dataList[i];
-    document.getElementById("model").value = item.model;
-    document.getElementById("diameter").value = item.dia;
-    document.getElementById("length").value = item.length;
-    document.getElementById("uom").value = item.uom;
-    document.getElementById("qty").value = item.qty;
-    editIndex = i;
-    document.getElementById("addBtn").textContent = "Update Model";
 }
 
 function deleteData(i) { if(confirm("Delete?")) { dataList.splice(i, 1); saveAndRefresh(); } }
@@ -144,103 +132,136 @@ function saveAndRefresh() {
     renderTable();
 }
 
-// Master Logic for Diameter-wise Cutting
-function perfectOptimize() {
-    const barDiaInput = parseFloat(document.getElementById("barDia").value); // Raw Bar Diameter
-    const barRaw = document.getElementById("barLength").value;
-    const barIn = parseFloat(barRaw); // Raw Bar Length
-    const barU = document.getElementById("barUnit").value;
-    const resDiv = document.getElementById("result");
+// --- Raw Stock Functions ---
+function addRawBar() {
+    const d = parseFloat(document.getElementById("barDia").value);
+    const l = parseFloat(document.getElementById("barLength").value);
+    const u = document.getElementById("barUnit").value;
 
-    if (isNaN(barIn) || isNaN(barDiaInput) || dataList.length === 0) {
-        return alert("Raw Bar ka Diameter, Length aur list mein models check karein.");
-    }
+    if (isNaN(d) || isNaN(l)) return alert("Round Bar ka Dia aur Length bharein.");
 
-    const barMM = convert(barIn, barU, "mm");
+    rawBars.push({ 
+        dia: d, 
+        length: l, 
+        uom: u, 
+        lengthMM: convert(l, u, "mm") 
+    });
     
-    // Grouping only matching shafts
-    const groups = {};
+    renderRawBarTable();
+    document.getElementById("barLength").value = "";
+}
+
+function renderRawBarTable() {
+    const table = document.getElementById("rawBarTable");
+    if (!table) return;
+    table.innerHTML = rawBars.map((bar, index) => `
+        <tr>
+            <td><b>${bar.dia} mm</b></td>
+            <td>${bar.length} ${bar.uom}</td>
+            <td><button onclick="rawBars.splice(${index},1); renderRawBarTable();" style="color:red; background:none; border:none; cursor:pointer;">Remove</button></td>
+        </tr>
+    `).join("");
+}
+
+// --- Optimization & Professional Result ---
+function perfectOptimize() {
+    const resDiv = document.getElementById("result");
+    if (dataList.length === 0 || rawBars.length === 0) return alert("Pehle Required Shafts aur Stock Bars add karein.");
+
+    // Grouping shafts by Diameter
+    const shaftGroups = {};
     dataList.forEach(item => {
-        // Sirf wahi shafts pick karega jo raw bar dia se match hongi
-        if (item.dia === barDiaInput) {
-            if (!groups[item.dia]) groups[item.dia] = [];
-            const sizeMM = convert(item.length, item.uom, "mm");
-            for(let i=0; i<item.qty; i++) groups[item.dia].push({ ...item, sizeMM });
-        }
+        if (!shaftGroups[item.dia]) shaftGroups[item.dia] = [];
+        const sizeMM = convert(item.length, item.uom, "mm");
+        for(let i=0; i<item.qty; i++) shaftGroups[item.dia].push({ ...item, sizeMM });
     });
 
-    if (Object.keys(groups).length === 0) {
-        resDiv.innerHTML = `<p style="color:red; text-align:center; padding:15px; border:1px dashed red;">⚠️ List mein ${barDiaInput}mm diameter ki koi shaft nahi mili.</p>`;
-        return;
-    }
+    // Professional Header for PDF
+    let html = `
+        <div style="text-align:center; border-bottom: 2px solid #333; padding-bottom:15px; margin-bottom:20px;">
+            <h1 style="margin:0; font-size: 24px; color: #2c3e50;">PRAKASH PUMPS - R&D CENTER</h1>
+            <p style="margin:5px 0; font-size: 14px;">Shaft Cutting Optimization Technical Report</p>
+            <p style="font-size:12px; color: #666;">Generated on: ${new Date().toLocaleDateString()} | ${new Date().toLocaleTimeString()}</p>
+        </div>`;
 
-    let html = `<h3 style="margin-top:30px; color:#007bff; text-align:center;">📊 Optimized Plan for ${barDiaInput}mm Diameter</h3>`;
+    let foundMatch = false;
 
-    Object.keys(groups).forEach(dia => {
-        let items = groups[dia].sort((a, b) => b.sizeMM - a.sizeMM);
-        let bars = [];
+    Object.keys(shaftGroups).forEach(dia => {
+        let shafts = shaftGroups[dia].sort((a, b) => b.sizeMM - a.sizeMM);
+        
+        // Finding matching stock bars for this diameter
+        let stock = rawBars
+            .filter(b => b.dia == dia)
+            .map(b => ({ ...b, remMM: b.lengthMM, cuts: [] }));
 
-        items.forEach(item => {
+        if (stock.length === 0) return; // Skip if no stock for this dia
+        foundMatch = true;
+
+        shafts.forEach(shaft => {
             let placed = false;
-            for (let b of bars) {
-                if (b.rem >= item.sizeMM) {
-                    b.cuts.push(item);
-                    b.rem -= item.sizeMM;
-                    placed = true; break;
+            for (let bar of stock) {
+                if (bar.remMM >= shaft.sizeMM) {
+                    bar.cuts.push(shaft);
+                    bar.remMM -= shaft.sizeMM;
+                    placed = true;
+                    break;
                 }
             }
-            if (!placed) bars.push({ total: barMM, rem: barMM - item.sizeMM, cuts: [item] });
+            if (!placed) html += `<p style="color:orange;">⚠️ Warning: ${dia}mm shaft (${shaft.model}) ke liye stock kam hai.</p>`;
         });
 
-        html += `
-            <div style="margin-top:20px;">
-                <div style="background:#007bff; color:white; padding:10px; border-radius:8px 8px 0 0; font-weight:bold;">
-                    🔵 RAW ROUND BAR: ${dia} mm | Total Bars Required: ${bars.length}
-                </div>`;
+        html += `<h3 style="background:#2c3e50; color:#fff; padding:8px 12px; margin-top:25px;">MATERIAL: ROUND BAR - DIA ${dia}MM</h3>`;
 
-        bars.forEach((bar, idx) => {
-            let barSummary = {};
+        stock.forEach((bar, idx) => {
+            if (bar.cuts.length === 0) return;
+            
+            let summary = {};
             bar.cuts.forEach(c => {
-                let key = `${c.model}|${c.length}|${c.uom}`;
-                barSummary[key] = (barSummary[key] || 0) + 1;
+                let key = `${c.model} [${c.length}${c.uom}]`;
+                summary[key] = (summary[key] || 0) + 1;
             });
 
             html += `
-                <div style="margin-bottom: 15px; border: 1px solid #ddd; border-top:none; background:#fff;">
-                    <div style="background: #343a40; color: white; padding: 5px 15px; font-size:0.9em;">
-                        RAW BAR #${idx + 1} (${dia}mm)
-                    </div>
-                    <table style="width: 100%; border-collapse: collapse; font-size:0.9em;">
-                        <tr style="background:#f8f9fa;">
-                            <th style="border:1px solid #ddd; padding:5px;">Model</th>
-                            <th style="border:1px solid #ddd; padding:5px; text-align:center;">Length</th>
-                            <th style="border:1px solid #ddd; padding:5px; text-align:center;">Qty</th>
-                        </tr>`;
-
-            Object.keys(barSummary).forEach(k => {
-                const [mName, mLen, mUom] = k.split('|');
-                html += `
-                    <tr>
-                        <td style="border:1px solid #ddd; padding:5px;">${mName}</td>
-                        <td style="border:1px solid #ddd; padding:5px; text-align:center;">${mLen} ${mUom}</td>
-                        <td style="border:1px solid #ddd; padding:5px; text-align:center;">${barSummary[k]} pcs</td>
-                    </tr>`;
-            });
-
-            const used = (bar.total - bar.rem).toFixed(2);
-            const scrap = bar.rem.toFixed(2);
-
-            html += `
-                        <tr style="background:#fffbe6;">
-                            <td colspan="3" style="border:1px solid #ddd; padding:8px; font-size:0.85em;">
-                                <b>Used:</b> ${used}mm | <b>Scrap:</b> <span style="color:red; font-weight:bold;">${scrap}mm</span>
-                            </td>
-                        </tr>
+                <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                    <p style="margin-bottom:8px;"><strong>STOCK BAR #${idx + 1}</strong> (Total: ${bar.length}${bar.uom})</p>
+                    <table style="width:100%; border-collapse: collapse; border: 1px solid #333;">
+                        <thead>
+                            <tr style="background:#ecf0f1;">
+                                <th style="border:1px solid #333; padding:8px; text-align:left;">Model Name & Size</th>
+                                <th style="border:1px solid #333; padding:8px; text-align:center; width:100px;">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.keys(summary).map(key => `
+                                <tr>
+                                    <td style="border:1px solid #333; padding:8px;">${key}</td>
+                                    <td style="border:1px solid #333; padding:8px; text-align:center;">${summary[key]} pcs</td>
+                                </tr>`).join("")}
+                        </tbody>
+                        <tfoot>
+                            <tr style="background:#f9f9f9;">
+                                <td style="border:1px solid #333; padding:8px; text-align:right;"><b>Total Used:</b></td>
+                                <td style="border:1px solid #333; padding:8px; text-align:center;"><b>${(bar.lengthMM - bar.remMM).toFixed(1)} mm</b></td>
+                            </tr>
+                            <tr style="background:#fff2f2;">
+                                <td style="border:1px solid #333; padding:8px; text-align:right;"><b>Scrap (Wastage):</b></td>
+                                <td style="border:1px solid #333; padding:8px; text-align:center; color:red;"><b>${bar.remMM.toFixed(1)} mm</b></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>`;
         });
-        html += `</div>`;
     });
 
-    resDiv.innerHTML = html;
+    if(!foundMatch) {
+        resDiv.innerHTML = `<p style="color:red; text-align:center; padding:20px; border:1px solid red;">⚠️ Error: Add kiye gaye Stock Bars ka Diameter required shafts se match nahi ho raha!</p>`;
+    } else {
+        resDiv.innerHTML = html;
+    }
+}
+
+function downloadPDF() {
+    const res = document.getElementById("result").innerHTML;
+    if(!res || res.trim() === "") return alert("Pehle plan calculate karein.");
+    window.print();
 }
