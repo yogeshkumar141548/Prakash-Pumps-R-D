@@ -3,24 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prakash Pumps - Multi-Bar Shaft Management</title>
+    <title>Prakash Pumps - Pro Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .raw-inventory { background: #fdfdfd; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-top: 10px; }
-        .badge-dia { background: #007bff; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; }
-    </style>
 </head>
 <body>
     <div class="container">
         <header>
             <img src="prakash logo.jfif" alt="Prakash Logo" class="right-logo">
             <h1>Prakash Pump</h1>
-            <p>Shaft Cutting Management (Inventory Based)</p>
+            <p>R&D Shaft Cutting, Weight & Scrap Optimizer</p>
         </header>
 
-        <!-- Section 1: Shafts to Cut -->
         <section class="section">
-            <h2>1. Shafts to Cut (Required)</h2>
+            <h2>1. Requirements & Material Settings</h2>
             <div class="input-group">
                 <input id="model" list="modelList" placeholder="Model Name" oninput="autoFillDetails()">
                 <datalist id="modelList"></datalist>
@@ -28,77 +23,72 @@
                 <input id="length" type="number" placeholder="Length" step="0.1">
                 <select id="uom"></select>
                 <input id="qty" type="number" placeholder="Qty" min="1" value="1">
+            </div>
+            
+            <div class="input-group" style="background: #fff8e1; border: 1px solid #ffe082;">
+                <select id="materialType">
+                    <option value="7.85">Steel / SS 304/316 (7.85)</option>
+                    <option value="8.0">SS High Grade (8.0)</option>
+                    <option value="2.7">Aluminum (2.7)</option>
+                    <option value="8.96">Copper (8.96)</option>
+                    <option value="8.5">Brass (8.5)</option>
+                </select>
+                <input id="kerf" type="number" placeholder="Blade Kerf (mm)" step="0.1" value="3">
                 <button id="addBtn" onclick="addData()" class="btn-primary">Add Shaft</button>
             </div>
+            
+            <div style="margin-bottom: 15px; font-size: 0.85em;" class="no-print">
+                <strong>Bulk CSV Import:</strong> <input type="file" id="csvFile" accept=".csv" onchange="importCSV()">
+            </div>
+
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Model</th>
-                            <th>Dia (mm)</th>
-                            <th>Length</th>
-                            <th>Unit</th>
-                            <th>Qty</th>
-                            <th>Action</th>
-                        </tr>
+                        <tr><th>Model</th><th>Dia</th><th>Length</th><th>Unit</th><th>Qty</th><th>Action</th></tr>
                     </thead>
                     <tbody id="tableData"></tbody>
                 </table>
             </div>
         </section>
 
-        <hr class="divider">
-
-        <!-- Section 2: Raw Material Stock -->
         <section class="section">
-            <h2>2. Raw Material Stock (Available Bars)</h2>
-            <div class="input-group" style="background: #eef2f7; padding: 15px; border-radius: 8px;">
+            <h2>2. Raw Stock Inventory</h2>
+            <div class="input-group" style="background:#eef2f7; padding:15px; border-radius:8px;">
                 <input id="barDia" type="number" placeholder="Bar Dia (mm)" step="0.1">
                 <input id="barLength" type="number" placeholder="Length" step="any">
                 <select id="barUnit"></select>
                 <button id="addBarBtn" onclick="addRawBar()" class="btn-primary" style="background:#28a745;">Add to Stock</button>
             </div>
-            
-            <div class="raw-inventory">
-                <table style="width:100%; border-collapse: collapse;">
+            <div class="table-container">
+                <table>
                     <thead>
-                        <tr style="text-align:left; border-bottom: 2px solid #ddd;">
-                            <th>Diameter (mm)</th>
-                            <th>Length</th>
-                            <th>Unit</th>
-                            <th style="width: 150px;">Action</th>
-                        </tr>
+                        <tr><th>Diameter (mm)</th><th>Length</th><th>Unit</th><th>Action</th></tr>
                     </thead>
                     <tbody id="rawBarTable"></tbody>
                 </table>
             </div>
-
-            <button onclick="perfectOptimize()" class="btn-optimize" style="margin-top:20px; width:100%; font-size:1.1em;">🚀 Run Optimization</button>
+            <button onclick="perfectOptimize()" class="btn-optimize" style="margin-top:20px;">🚀 Run Optimization & Check Suggestions</button>
         </section>
 
-        <!-- Section 3: Result & Download -->
         <section class="section" id="result-section">
-            <div id="result">
-                <!-- Optimization report will be generated here -->
+            <div id="result"></div>
+            <div class="no-print" style="margin-top:20px; display:flex; gap:10px; flex-wrap: wrap;">
+                <button onclick="window.print()" class="btn-primary" style="background:#28a745;">🖨️ Download PDF</button>
+                <button onclick="exportData()" class="btn-primary" style="background:#6c757d;">📤 Export (For other PC)</button>
+                <button onclick="document.getElementById('importFile').click()" class="btn-primary" style="background:#6c757d;">📥 Import Data</button>
+                <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+                <a href="../index.html" class="back-home-btn" style="text-decoration:none;">Back to Home</a>
             </div>
-            
-            <div class="no-print" style="margin-top: 20px; display: flex; gap: 10px;">
-                <button onclick="downloadPDF()" class="btn-primary" style="background: #28a745;">Download Report (PDF)</button>
-                <a href="../index.html" class="back-home-btn" style="text-decoration: none; padding: 10px 20px; background: #6c757d; color: white; border-radius: 5px;">Back to Home</a>
+        </section>
+
+        <section class="section no-print" style="margin-top: 50px; border-top: 2px solid #eee; padding-top: 20px;">
+            <h2>3. History & Backups (Last 30 Days)</h2>
+            <div style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
+                <button onclick="clearAllHistory()" class="btn-primary" style="background: var(--danger); font-size: 0.85rem;">🗑️ Clear All History</button>
             </div>
+            <div id="historyList" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; padding: 10px;"></div>
         </section>
     </div>
-
     <script src="script.js"></script>
-    
-    <script>
-        function downloadPDF() {
-            const resultElement = document.getElementById("result");
-            if (!resultElement || resultElement.innerHTML.trim() === "") {
-                return alert("Please click 'Run Optimization' first to generate a report!");
-            }
-            window.print();
-        }
-    </script>
 </body>
 </html>
