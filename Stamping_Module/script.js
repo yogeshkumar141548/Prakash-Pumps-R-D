@@ -34,6 +34,7 @@ const defaultData = [
 ];
 
 let motorData = JSON.parse(localStorage.getItem('motorDB')) || defaultData;
+let selectedItems = JSON.parse(localStorage.getItem('selectedItems')) || [];
 let editMode = false;
 
 const stampingSel = document.getElementById('stamping');
@@ -46,34 +47,174 @@ function init() {
     stampingSel.innerHTML = '';
     models.forEach(m => stampingSel.add(new Option(m, m)));
     updateCLDropdown();
+    renderTable(); 
 }
 
 function updateCLDropdown() {
     const filtered = motorData.filter(d => d.Stamping === stampingSel.value);
     clSel.innerHTML = '';
     filtered.forEach(d => clSel.add(new Option(d.CL, d.CL)));
-    calculate();
+    
+    renderUnitWeights(); 
+    calculateLiveCard();
 }
 
-function calculate() {
+function renderUnitWeights() {
     const row = motorData.find(d => d.Stamping === stampingSel.value && d.CL == clSel.value);
     if(!row) return;
 
-    // Display Weights
     if(editMode) {
-        document.getElementById('statorUnit').innerHTML = `<input type="number" step="0.01" class="edit-input" value="${row.StatorWt}" onchange="updateValue('StatorWt', this.value)"> kg`;
-        document.getElementById('rotorUnit').innerHTML = `<input type="number" step="0.01" class="edit-input" value="${row.RotorWt}" onchange="updateValue('RotorWt', this.value)"> kg`;
+        if (!document.querySelector('.stator-edit-input')) {
+            document.getElementById('statorUnit').innerHTML = `<input type="number" step="0.01" class="edit-input stator-edit-input" value="${row.StatorWt}" oninput="updateValue('StatorWt', this.value)"> kg`;
+            document.getElementById('rotorUnit').innerHTML = `<input type="number" step="0.01" class="edit-input rotor-edit-input" value="${row.RotorWt}" oninput="updateValue('RotorWt', this.value)"> kg`;
+        }
     } else {
         document.getElementById('statorUnit').textContent = row.StatorWt + " kg";
         document.getElementById('rotorUnit').textContent = row.RotorWt + " kg";
     }
+}
 
-    const totalS = (row.StatorWt * sQty.value).toFixed(2);
-    const totalR = (row.RotorWt * rQty.value).toFixed(2);
+function calculateLiveCard() {
+    const row = motorData.find(d => d.Stamping === stampingSel.value && d.CL == clSel.value);
+    if(!row) return;
+
+    const statorWt = editMode ? (parseFloat(document.querySelector('.stator-edit-input')?.value) || 0) : row.StatorWt;
+    const rotorWt = editMode ? (parseFloat(document.querySelector('.rotor-edit-input')?.value) || 0) : row.RotorWt;
+
+    const totalS = (statorWt * (parseFloat(sQty.value) || 0)).toFixed(2);
+    const totalR = (rotorWt * (parseFloat(rQty.value) || 0)).toFixed(2);
 
     document.getElementById('statorTotal').textContent = totalS;
     document.getElementById('rotorTotal').textContent = totalR;
-    document.getElementById('grandTotal').textContent = (parseFloat(totalS) + parseFloat(totalR)).toFixed(2);
+}
+
+function addItemToTable() {
+    const stamping = stampingSel.value;
+    const cl = parseFloat(clSel.value);
+    const sqtyVal = parseInt(sQty.value) || 0;
+    const rqtyVal = parseInt(rQty.value) || 0;
+
+    if(sqtyVal <= 0 && rqtyVal <= 0) {
+        alert("Kripya Stator ya Rotor me se kisi ek ki Quantity zaroor bharein!");
+        return;
+    }
+
+    const dbRow = motorData.find(d => d.Stamping === stamping && d.CL == cl);
+    if(!dbRow) return;
+
+    // Check Duplicate Item (Same Size + Same CL)
+    const existingItemIndex = selectedItems.findIndex(item => item.stamping === stamping && item.cl === cl);
+
+    if (existingItemIndex !== -1) {
+        // Quantity badha do agar same size and CL hai
+        selectedItems[existingItemIndex].statorQty += sqtyVal;
+        selectedItems[existingItemIndex].rotorQty += rqtyVal;
+        
+        selectedItems[existingItemIndex].statorTotalWt = parseFloat((selectedItems[existingItemIndex].statorQty * dbRow.StatorWt).toFixed(2));
+        selectedItems[existingItemIndex].rotorTotalWt = parseFloat((selectedItems[existingItemIndex].rotorQty * dbRow.RotorWt).toFixed(2));
+        selectedItems[existingItemIndex].itemGrandTotal = parseFloat((selectedItems[existingItemIndex].statorTotalWt + selectedItems[existingItemIndex].rotorTotalWt).toFixed(2));
+    } else {
+        // Nayi row entry detail save karo
+        const statorTotalWt = parseFloat((sqtyVal * dbRow.StatorWt).toFixed(2));
+        const rotorTotalWt = parseFloat((rqtyVal * dbRow.RotorWt).toFixed(2));
+        const itemGrandTotal = parseFloat((statorTotalWt + rotorTotalWt).toFixed(2));
+
+        selectedItems.push({
+            stamping,
+            cl,
+            statorQty: sqtyVal,
+            statorTotalWt,
+            rotorQty: rqtyVal,
+            rotorTotalWt,
+            itemGrandTotal
+        });
+    }
+
+    localStorage.setItem('selectedItems', JSON.stringify(selectedItems));
+    renderTable();
+
+    sQty.value = 1;
+    rQty.value = 1;
+    calculateLiveCard();
+}
+
+// --- CORE FIX: DOUBLE TABLE RENDERING ENGINE WITH SIZE GROUPING ---
+function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    const summaryTbody = document.getElementById('summaryTableBody');
+    
+    tbody.innerHTML = '';
+    summaryTbody.innerHTML = '';
+    
+    let finalGrandTotal = 0;
+    let finalStatorTotal = 0;
+    let finalRotorTotal = 0;
+
+    // Grouping Map Object for Table 2 (Stamping Size Wise)
+    const sizeSummaryMap = {};
+
+    selectedItems.forEach((item, index) => {
+        finalGrandTotal += item.itemGrandTotal;
+        finalStatorTotal += item.statorTotalWt;
+        finalRotorTotal += item.rotorTotalWt;
+
+        // Grouping logic: check dynamic stamping sizes
+        if (!sizeSummaryMap[item.stamping]) {
+            sizeSummaryMap[item.stamping] = {
+                statorWt: 0,
+                rotorWt: 0,
+                combined: 0
+            };
+        }
+        sizeSummaryMap[item.stamping].statorWt += item.statorTotalWt;
+        sizeSummaryMap[item.stamping].rotorWt += item.rotorTotalWt;
+        sizeSummaryMap[item.stamping].combined += item.itemGrandTotal;
+
+        // Table 1 Data Render (Detailed Record)
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><strong>${item.stamping}</strong></td>
+            <td>${item.cl} mm</td>
+            <td>${item.statorQty}</td>
+            <td>${item.statorTotalWt.toFixed(2)}</td>
+            <td>${item.rotorQty}</td>
+            <td>${item.rotorTotalWt.toFixed(2)}</td>
+            <td style="color:#e74c3c; font-weight:bold;">${item.itemGrandTotal.toFixed(2)}</td>
+            <td><button class="btn btn-delete" onclick="deleteItem(${index})">❌ Delete</button></td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    // Table 2 Data Render (Size Wise Grouped Aggregation)
+    for (const sizeKey in sizeSummaryMap) {
+        const summaryData = sizeSummaryMap[sizeKey];
+        const sRow = document.createElement('tr');
+        sRow.innerHTML = `
+            <td><strong>${sizeKey}</strong></td>
+            <td style="color:var(--stator-color); font-weight:600;">${summaryData.statorWt.toFixed(2)}</td>
+            <td style="color:var(--rotor-color); font-weight:600;">${summaryData.rotorWt.toFixed(2)}</td>
+            <td style="color:var(--primary); font-weight:bold; background:#f4f7f9;">${summaryData.combined.toFixed(2)}</td>
+        `;
+        summaryTbody.appendChild(sRow);
+    }
+
+    // Dynamic split content injection in Grand Total section
+    document.getElementById('grandTotalContainer').innerHTML = `
+        <div class="grand-split-grid">
+            <span>Total Stator Weight: <strong>${finalStatorTotal.toFixed(2)} kg</strong></span>
+            <span>|</span>
+            <span>Total Rotor Weight: <strong>${finalRotorTotal.toFixed(2)} kg</strong></span>
+        </div>
+        <div class="grand-main-title">
+            Final Total Weight: ${finalGrandTotal.toFixed(2)} kg
+        </div>
+    `;
+}
+
+function deleteItem(index) {
+    selectedItems.splice(index, 1);
+    localStorage.setItem('selectedItems', JSON.stringify(selectedItems));
+    renderTable();
 }
 
 function updateValue(key, val) {
@@ -81,28 +222,53 @@ function updateValue(key, val) {
     if(index !== -1) {
         motorData[index][key] = parseFloat(val) || 0;
         localStorage.setItem('motorDB', JSON.stringify(motorData));
+        calculateLiveCard();
     }
 }
 
 function toggleEditMode() {
     editMode = !editMode;
     const btn = document.getElementById('editBtn');
+    
+    if(!editMode) {
+        document.getElementById('statorUnit').innerHTML = '';
+        document.getElementById('rotorUnit').innerHTML = '';
+    }
+
     btn.textContent = editMode ? "Save & Lock Data" : "Enable Edit Mode";
     btn.style.background = editMode ? "#27ae60" : "#3498db";
-    calculate();
+    
+    renderUnitWeights();
+    calculateLiveCard();
 }
 
 function resetToDefault() {
-    if(confirm("Kya aap saara data reset karke Excel wali purani values wapas lana chahte hain?")) {
+    if(confirm("Kya aap data reset karna chahte hain? Isse aapki current selected table list bhi clear ho jayegi.")) {
         localStorage.removeItem('motorDB');
-        motorData = [...defaultData];
+        localStorage.removeItem('selectedItems');
+        motorData = JSON.parse(JSON.stringify(defaultData));
+        selectedItems = [];
+        editMode = false;
+        
+        const btn = document.getElementById('editBtn');
+        btn.textContent = "Enable Edit Mode";
+        btn.style.background = "#3498db";
+        
+        document.getElementById('statorUnit').innerHTML = '';
+        document.getElementById('rotorUnit').innerHTML = '';
+        
         init();
     }
 }
 
 stampingSel.addEventListener('change', updateCLDropdown);
-clSel.addEventListener('change', calculate);
-sQty.addEventListener('input', calculate);
-rQty.addEventListener('input', calculate);
+clSel.addEventListener('change', () => {
+    document.getElementById('statorUnit').innerHTML = '';
+    document.getElementById('rotorUnit').innerHTML = '';
+    renderUnitWeights();
+    calculateLiveCard();
+});
+sQty.addEventListener('input', calculateLiveCard);
+rQty.addEventListener('input', calculateLiveCard);
 
 init();
