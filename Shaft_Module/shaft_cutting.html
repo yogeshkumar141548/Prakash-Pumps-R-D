@@ -56,17 +56,17 @@
                 <input id="barDia" type="number" placeholder="Bar Dia (mm)" step="0.1">
                 <input id="barLength" type="number" placeholder="Length" step="any">
                 <select id="barUnit"></select>
-                <button onclick="addRawBar()" class="btn-primary" style="background:#28a745;">Add</button>
+                <button id="addBarBtn" onclick="addRawBar()" class="btn-primary" style="background:#28a745;">Add to Stock</button>
             </div>
             
             <div class="raw-inventory">
                 <table style="width:100%; border-collapse: collapse;">
                     <thead>
                         <tr style="text-align:left; border-bottom: 2px solid #ddd;">
-                            <th>Diameter</th>
+                            <th>Diameter (mm)</th>
                             <th>Length</th>
                             <th>Unit</th>
-                            <th>Action</th>
+                            <th style="width: 150px;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="rawBarTable"></tbody>
@@ -76,11 +76,10 @@
             <button onclick="perfectOptimize()" class="btn-optimize" style="margin-top:20px; width:100%; font-size:1.1em;">🚀 Run Optimization</button>
         </section>
 
-        
-
-        <section class="section">
+        <!-- Section 3: Result & Download -->
+        <section class="section" id="result-section">
             <div id="result">
-            
+                <!-- Optimization report will be generated here -->
             </div>
             
             <div class="no-print" style="margin-top: 20px; display: flex; gap: 10px;">
@@ -96,7 +95,7 @@
         function downloadPDF() {
             const resultElement = document.getElementById("result");
             if (!resultElement || resultElement.innerHTML.trim() === "") {
-                return alert("please click 'calculate button'!");
+                return alert("Please click 'Run Optimization' first to generate a report!");
             }
             window.print();
         }
