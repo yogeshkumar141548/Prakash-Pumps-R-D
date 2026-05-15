@@ -44,7 +44,7 @@
                     </div>
                     <hr>
                     <div class="row total-row">
-                        <span>Total Stator Stamping:</span>
+                        <span>Total Stator Wt:</span>
                         <span><span id="statorTotal">0.00</span> kg</span>
                     </div>
                 </div>
@@ -65,18 +65,67 @@
                     </div>
                     <hr>
                     <div class="row total-row">
-                        <span>Total Rotor Stamping:</span>
+                        <span>Total Rotor Wt:</span>
                         <span><span id="rotorTotal">0.00</span> kg</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="grand-total-bar">
-            <h3>Total Stamping Weight: <span id="grandTotal">0.00</span> kg</h3>
+        <div class="action-bar">
+            <button id="addItemBtn" class="btn btn-add" onclick="addItemToTable()">➕ Add Item to List</button>
         </div>
+
+        <div class="tables-container">
+            
+            <div class="table-card card detailed-box">
+                <h2>1. Selected Items (Detailed List)</h2>
+                <div class="table-wrapper">
+                    <table id="itemsTable">
+                        <thead>
+                            <tr>
+                                <th>Stamping Size</th>
+                                <th>CL (mm)</th>
+                                <th>Stator Qty</th>
+                                <th>Stator Wt</th>
+                                <th>Rotor Qty</th>
+                                <th>Rotor Wt</th>
+                                <th>Total Wt</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="table-card card summary-box">
+                <h2>2. Stamping Size Wise Summary (Grouped)</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Stamping Size</th>
+                                <th>Total Stator Wt (kg)</th>
+                                <th>Total Rotor Wt (kg)</th>
+                                <th>Combined Wt (kg)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summaryTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="grand-total-bar" id="grandTotalContainer">
+            </div>
     </div>
-<a href="../index.html" class="back-home-btn">Back to Home</a>
+
+    <a href="../index.html" class="back-home-btn">Back to Home</a>
+    
     <script src="script.js"></script>
 </body>
 </html>
