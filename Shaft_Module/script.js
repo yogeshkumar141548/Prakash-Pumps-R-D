@@ -38,15 +38,27 @@ window.onload = function() {
 
 function fillUnits() {
     const opts = Object.keys(units).map(k => `<option value="${k}">${k}</option>`).join("");
-    document.getElementById("uom").innerHTML = opts; document.getElementById("barUnit").innerHTML = opts;
+    const uomEl = document.getElementById("uom");
+    const barUnitEl = document.getElementById("barUnit");
+    if(uomEl) uomEl.innerHTML = opts; 
+    if(barUnitEl) barUnitEl.innerHTML = opts;
 }
 
-function loadModelDropdown() { document.getElementById("modelList").innerHTML = excelData.map(i => `<option value="${i.m}">`).join(""); }
+function loadModelDropdown() { 
+    const dl = document.getElementById("modelList");
+    if(dl) dl.innerHTML = excelData.map(i => `<option value="${i.m}">`).join(""); 
+}
 
 function autoFillDetails() {
-    const val = document.getElementById("model").value.trim();
+    const modelEl = document.getElementById("model");
+    if (!modelEl) return;
+    const val = modelEl.value.trim();
     const found = excelData.find(i => i.m.toLowerCase() === val.toLowerCase());
-    if (found) { document.getElementById("diameter").value = found.d; document.getElementById("length").value = found.l; document.getElementById("uom").value = "mm"; }
+    if (found) { 
+        document.getElementById("diameter").value = found.d; 
+        document.getElementById("length").value = found.l; 
+        document.getElementById("uom").value = "mm"; 
+    }
 }
 
 function convert(val, from, to) { return (val * units[from]) / units[to]; }
@@ -59,24 +71,16 @@ function getWeight(dia, lengthMM) {
 // --- ADVANCED MULTI-MODEL & COMBINED SCRAP SUGGESTER ---
 function getSmartSuggestion(remMM, dia, kerf) {
     const targetDia = parseFloat(dia);
-    // 1. Filter all valid models for this diameter that can fit in remaining space
     let validModels = excelData.filter(item => Math.abs(item.d - targetDia) < 0.1 && item.l <= remMM);
     
     if (validModels.length === 0) return "";
 
-    // A. Calculate Individual Options (Single Models that can fit)
     let individualList = validModels.map(item => {
         let maxQty = Math.floor(remMM / (item.l + kerf));
-        if (maxQty === 0 && remMM >= item.l) maxQty = 1; // Last piece without kerf loss
+        if (maxQty === 0 && remMM >= item.l) maxQty = 1;
         return maxQty > 0 ? `<b>${item.m}</b> (${maxQty} pc${maxQty > 1 ? 's' : ''})` : null;
     }).filter(Boolean);
 
-    // B. Calculate Best Combined Solution (Knapsack Mix)
-    // Find combination of different models that minimizes waste
-    let bestCombo = [];
-    let minimumWaste = remMM;
-    
-    // Simple greedy approach to find a highly efficient combined cutting mix
     let currentRem = remMM;
     let comboTracker = {};
     let sortedByLength = [...validModels].sort((a, b) => b.l - a.l);
@@ -85,26 +89,20 @@ function getSmartSuggestion(remMM, dia, kerf) {
         let spaceNeeded = item.l + kerf;
         while (currentRem >= spaceNeeded || (currentRem >= item.l && currentRem < spaceNeeded)) {
             comboTracker[item.m] = (comboTracker[item.m] || 0) + 1;
-            if (currentRem >= spaceNeeded) {
-                currentRem -= spaceNeeded;
-            } else {
-                currentRem -= item.l; // Last element used the absolute end of the bar
-            }
+            if (currentRem >= spaceNeeded) currentRem -= spaceNeeded;
+            else currentRem -= item.l;
         }
     }
 
     let combinedList = Object.keys(comboTracker).map(m => `<b>${comboTracker[m]}pc</b> of ${m}`);
 
-    // Create the Advanced Dashboard HTML Box for Suggestions
     return `
         <div style="color:#27ae60; font-size:0.85em; text-align:left; margin-top:12px; background:#e9f7ef; padding:12px; border-radius:6px; border-left:4px solid #27ae60; box-shadow: inset 0 0 5px rgba(0,0,0,0.02);">
             <div style="font-weight:bold; margin-bottom:6px; font-size:0.95rem; display:flex; align-items:center; gap:5px;">💡 Smart Scrap Utilization Analysis:</div>
-            
             <div style="margin-bottom: 5px;">
                 <span style="color:#2c3e50; font-weight:600;">• Standalone Possibilities (Individually):</span> 
                 <span style="color:#444;">${individualList.join(" | ")}</span>
             </div>
-            
             ${combinedList.length > 0 ? `
             <div>
                 <span style="color:#2c3e50; font-weight:600;">• Best Combined Production (Combo Mix):</span> 
@@ -152,7 +150,7 @@ function importCSV() {
     reader.readAsText(file);
 }
 
-// Form Operations
+// Shaft Entry Operations
 function addData() {
     const m = document.getElementById("model").value.trim(), d = parseFloat(document.getElementById("diameter").value), l = parseFloat(document.getElementById("length").value), u = document.getElementById("uom").value, q = parseInt(document.getElementById("qty").value) || 1;
     if (!m || isNaN(l) || isNaN(d)) return alert("Please fill details correctly.");
@@ -170,24 +168,44 @@ function editData(i) {
     const itm = dataList[i]; document.getElementById("model").value = itm.model; document.getElementById("diameter").value = itm.dia; document.getElementById("length").value = itm.length; document.getElementById("uom").value = itm.uom; document.getElementById("qty").value = itm.qty; editIndex = i; document.getElementById("addBtn").textContent = "Update Shaft";
 }
 
-function clearInputs() { document.getElementById("model").value = ""; document.getElementById("diameter").value = ""; document.getElementById("length").value = ""; }
-
+// Raw Stock Operations
 function addRawBar() {
-    const d = parseFloat(document.getElementById("barDia").value), l = parseFloat(document.getElementById("barLength").value), u = document.getElementById("barUnit").value;
-    if (isNaN(d) || isNaN(l)) return alert("Enter valid stock.");
-    if (rawEditIndex === -1) rawBars.push({ dia: d, length: l, uom: u, lengthMM: convert(l, u, "mm") }); else { rawBars[rawEditIndex] = { dia: d, length: l, uom: u, lengthMM: convert(l, u, "mm") }; rawEditIndex = -1; document.getElementById("addBarBtn").textContent = "Add to Stock"; }
+    const d = parseFloat(document.getElementById("barDia").value), 
+          l = parseFloat(document.getElementById("barLength").value), 
+          u = document.getElementById("barUnit").value,
+          q = parseInt(document.getElementById("barQty").value) || 1;
+          
+    if (isNaN(d) || isNaN(l) || q < 1) return alert("Enter valid stock details and quantity.");
+    const newBar = { dia: d, length: l, uom: u, qty: q, lengthMM: convert(l, u, "mm") };
+    
+    if (rawEditIndex === -1) {
+        rawBars.push(newBar);
+    } else {
+        rawBars[rawEditIndex] = newBar;
+        rawEditIndex = -1;
+        document.getElementById("addBarBtn").textContent = "Add to Stock";
+    }
     renderRawBarTable();
+    document.getElementById("barDia").value = "";
+    document.getElementById("barLength").value = "";
+    document.getElementById("barQty").value = "1";
 }
 
 function renderRawBarTable() {
-    document.getElementById("rawBarTable").innerHTML = rawBars.map((bar, i) => `<tr><td><b>${bar.dia}mm</b></td><td>${bar.length}</td><td>${bar.uom}</td><td><button onclick="editRawBar(${i})" style="background:var(--warning)">Edit</button><button onclick="rawBars.splice(${i},1);renderRawBarTable();" style="background:var(--danger);color:white">Del</button></td></tr>`).join("");
+    document.getElementById("rawBarTable").innerHTML = rawBars.map((bar, i) => `<tr><td><b>${bar.dia}mm</b></td><td>${bar.length}</td><td>${bar.uom}</td><td><b>${bar.qty} pcs</b></td><td><button onclick="editRawBar(${i})" style="background:var(--warning)">Edit</button><button onclick="rawBars.splice(${i},1);renderRawBarTable();" style="background:var(--danger);color:white">Del</button></td></tr>`).join("");
 }
 
 function editRawBar(i) {
-    const b = rawBars[i]; document.getElementById("barDia").value = b.dia; document.getElementById("barLength").value = b.length; document.getElementById("barUnit").value = b.uom; rawEditIndex = i; document.getElementById("addBarBtn").textContent = "Update Bar";
+    const b = rawBars[i]; 
+    document.getElementById("barDia").value = b.dia; 
+    document.getElementById("barLength").value = b.length; 
+    document.getElementById("barUnit").value = b.uom;
+    document.getElementById("barQty").value = b.qty;
+    rawEditIndex = i; 
+    document.getElementById("addBarBtn").textContent = "Update Bar";
 }
 
-// Unified History Sync Tracking
+// History Architecture
 function saveToHistory(html) {
     let hist = JSON.parse(localStorage.getItem("prakash_cutting_history")) || [];
     hist.unshift({ id: Date.now(), date: new Date().toLocaleString(), timestamp: Date.now(), data: html });
@@ -196,7 +214,10 @@ function saveToHistory(html) {
 
 function renderHistory() {
     const hist = JSON.parse(localStorage.getItem("prakash_cutting_history")) || [];
-    document.getElementById("historyList").innerHTML = hist.length ? hist.map(i => `<div style="background:#fff;padding:10px;margin-bottom:8px;border:1px solid #ddd;display:flex;justify-content:space-between;align-items:center;border-radius:6px;"><div><b>${i.date}</b></div><div><button onclick="viewHistory(${i.id})" style="background:var(--success);color:white;margin-right:5px;">View</button><button onclick="deleteHistory(${i.id})" style="background:var(--danger);color:white">Del</button></div></div>`).join("") : "<p style='text-align:center;color:#888;'>No calculation history.</p>";
+    const hl = document.getElementById("historyList");
+    if(hl) {
+        hl.innerHTML = hist.length ? hist.map(i => `<div style="background:#fff;padding:10px;margin-bottom:8px;border:1px solid #ddd;display:flex;justify-content:space-between;align-items:center;border-radius:6px;"><div><b>${i.date}</b></div><div><button onclick="viewHistory(${i.id})" style="background:var(--success);color:white;margin-right:5px;">View</button><button onclick="deleteHistory(${i.id})" style="background:var(--danger);color:white">Del</button></div></div>`).join("") : "<p style='text-align:center;color:#888;'>No calculation history.</p>";
+    }
 }
 
 function viewHistory(id) { const hist = JSON.parse(localStorage.getItem("prakash_cutting_history")) || [], item = hist.find(i => i.id === id); if (item) { document.getElementById("result").innerHTML = item.data; document.getElementById("result").scrollIntoView({ behavior: 'smooth' }); } }
@@ -208,7 +229,30 @@ function cleanupOldHistory() {
     localStorage.setItem("prakash_cutting_history", JSON.stringify(filtered));
 }
 
-// Master Optimization Algorithm (Format Fully Restored)
+// NEW PRODUCTION: CLEARING FUNCTIONS
+function clearRequirementsTable() {
+    if (confirm("Are you sure you want to clear the Requirements Table? (History will remain safe)")) {
+        dataList = []; localStorage.setItem("models", JSON.stringify(dataList)); renderTable(); clearInputs();
+    }
+}
+
+function clearStockTable() {
+    if (confirm("Are you sure you want to clear the Raw Stock Table?")) {
+        rawBars = []; renderRawBarTable(); document.getElementById("barDia").value = ""; document.getElementById("barLength").value = ""; document.getElementById("barQty").value = "1";
+    }
+}
+
+function masterAllClear() {
+    if (confirm("🚨 Clear BOTH tables for new production entry? (Previous records are securely saved in History)")) {
+        dataList = []; localStorage.setItem("models", JSON.stringify(dataList)); renderTable(); clearInputs();
+        rawBars = []; renderRawBarTable(); document.getElementById("barDia").value = ""; document.getElementById("barLength").value = ""; document.getElementById("barQty").value = "1";
+        document.getElementById("result").innerHTML = "<p style='color:#27ae60; text-align:center; font-weight:bold;'>Screen cleared! Ready for new entries.</p>";
+    }
+}
+
+function clearInputs() { document.getElementById("model").value = ""; document.getElementById("diameter").value = ""; document.getElementById("length").value = ""; }
+
+// Master Optimization Algorithm 
 function perfectOptimize() {
     const resDiv = document.getElementById("result"), kerf = parseFloat(document.getElementById("kerf").value) || 0;
     if (!dataList.length || !rawBars.length) return alert("Please add requirements and stock first.");
@@ -219,16 +263,25 @@ function perfectOptimize() {
     let html = `<div style="text-align:center;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:20px;"><h2>PRAKASH PUMPS - R&D REPORT</h2><p>Blade Kerf: ${kerf}mm</p></div>`, found = false;
     
     Object.keys(groups).forEach(dia => {
-        let shafts = groups[dia].sort((a,b) => b.sMM - a.sMM), stock = rawBars.filter(b => b.dia == dia).map(b => ({ ...b, rem: b.lengthMM, cuts: [] }));
+        let shafts = groups[dia].sort((a,b) => b.sMM - a.sMM);
+        
+        let stock = [];
+        rawBars.filter(b => b.dia == dia).forEach(b => {
+            for(let q=0; q<b.qty; q++) {
+                stock.push({ ...b, rem: b.lengthMM, cuts: [] });
+            }
+        });
+        
         if (!stock.length) return; found = true;
         
         shafts.forEach(s => { for (let b of stock) { if (b.rem >= (s.sMM + kerf)) { b.cuts.push(s); b.rem -= (s.sMM + kerf); return; } } });
         
         html += `<h3 style="background:var(--primary);color:white;padding:10px;border-radius:4px;margin-top:25px;">DIAMETER: ${dia}MM</h3>`;
         
+        let visualCounter = 1;
         stock.forEach((b, idx) => {
             if (!b.cuts.length) return;
-            let vis = `<div class="visual-bar">`, sum = {}, barW = getWeight(dia, b.lengthMM);
+            let vis = `<div class="visual-bar">`, sum = {};
             
             b.cuts.forEach(c => { 
                 sum[c.model] = (sum[c.model] || 0) + 1; 
@@ -244,7 +297,7 @@ function perfectOptimize() {
             const scrapWeight = (barTotalWeight - usedWeight).toFixed(3);
 
             html += `<div style="border:1px solid #ddd;padding:15px;margin-bottom:20px;background:#fff;page-break-inside:avoid;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                        <p style="margin:0 0 5px 0;font-size:1.05rem;"><b>BAR #${idx+1}</b> (${b.length} ${b.uom})</p>
+                        <p style="margin:0 0 5px 0;font-size:1.05rem;"><b>BAR #${visualCounter++}</b> (${b.length} ${b.uom})</p>
                         <p style="font-size:0.85em; color:#666; margin:0 0 12px 0;">Total Bar Weight: ${barTotalWeight} Kg | Used: ${usedWeight} Kg | Scrap: ${scrapWeight} Kg</p>
                         ${vis}
                         <table style="width:100%;border-collapse:collapse;margin-top:10px;">
