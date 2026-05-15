@@ -57,17 +57,25 @@
                 <input id="barDia" type="number" placeholder="Bar Dia (mm)" step="0.1">
                 <input id="barLength" type="number" placeholder="Length" step="any">
                 <select id="barUnit"></select>
+                <input id="barQty" type="number" placeholder="Qty" min="1" value="1" style="max-width: 100px;">
                 <button id="addBarBtn" onclick="addRawBar()" class="btn-primary" style="background:#28a745;">Add to Stock</button>
             </div>
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr><th>Diameter (mm)</th><th>Length</th><th>Unit</th><th>Action</th></tr>
+                        <tr><th>Diameter (mm)</th><th>Length</th><th>Unit</th><th>Qty</th><th>Action</th></tr>
                     </thead>
                     <tbody id="rawBarTable"></tbody>
                 </table>
             </div>
-            <button onclick="perfectOptimize()" class="btn-optimize" style="margin-top:20px;">🚀 Run Optimization & Check Suggestions</button>
+
+            <div class="no-print" style="margin-top:20px; display:flex; gap:10px; justify-content: space-between; flex-wrap: wrap;">
+                <button onclick="clearRequirementsTable()" class="btn-primary" style="background:#e67e22; font-size:0.9rem;">🧹 Clear Requirements Only</button>
+                <button onclick="clearStockTable()" class="btn-primary" style="background:#e67e22; font-size:0.9rem;">🧹 Clear Stock Only</button>
+                <button onclick="masterAllClear()" class="btn-primary" style="background:var(--danger); font-size:0.9rem;">🚨 Master All Clear (Both Tables)</button>
+            </div>
+
+            <button onclick="perfectOptimize()" class="btn-optimize" style="margin-top:15px;">🚀 Run Optimization & Check Suggestions</button>
         </section>
 
         <section class="section" id="result-section">
