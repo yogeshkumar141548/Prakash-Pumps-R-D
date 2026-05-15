@@ -3,40 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prakash Pumps - Shaft Cutting Management</title>
+    <title>Prakash Pumps - Multi-Bar Shaft Management</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .raw-inventory { background: #fdfdfd; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-top: 10px; }
+        .badge-dia { background: #007bff; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
             <img src="prakash logo.jfif" alt="Prakash Logo" class="right-logo">
             <h1>Prakash Pump</h1>
-            <p>Shaft Cutting Management System</p>
+            <p>Shaft Cutting Management (Inventory Based)</p>
         </header>
 
+        <!-- Section 1: Shafts to Cut -->
         <section class="section">
-            <h2>1. Shaft Details</h2>
+            <h2>1. Shafts to Cut (Required)</h2>
             <div class="input-group">
-                <input id="model" list="modelList" placeholder="Select or Type Model" oninput="autoFillDetails()">
+                <input id="model" list="modelList" placeholder="Model Name" oninput="autoFillDetails()">
                 <datalist id="modelList"></datalist>
-                
-                <input id="diameter" type="number" placeholder="Diameter (mm)" step="0.1">
+                <input id="diameter" type="number" placeholder="Dia (mm)" step="0.1">
                 <input id="length" type="number" placeholder="Length" step="0.1">
                 <select id="uom"></select>
-                <input id="qty" type="number" placeholder="Quantity" min="1" value="1" style="flex: 0.5; min-width: 80px;">
-                <button id="addBtn" onclick="addData()" class="btn-primary">Add / Update</button>
+                <input id="qty" type="number" placeholder="Qty" min="1" value="1">
+                <button id="addBtn" onclick="addData()" class="btn-primary">Add Shaft</button>
             </div>
-
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>Model Name</th>
-                            <th>Diameter (mm)</th>
+                            <th>Model</th>
+                            <th>Dia (mm)</th>
                             <th>Length</th>
                             <th>Unit</th>
-                            <th>Order Quantity</th>
-                            <th style="width: 150px;">Action</th>
+                            <th>Qty</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="tableData"></tbody>
@@ -46,39 +49,39 @@
 
         <hr class="divider">
 
+        <!-- Section 2: Raw Material Stock -->
         <section class="section">
-            <h2>2. Raw Material (Round Bar) Details</h2>
-            <div class="input-group">
-                <!-- step="any" allows decimal values like 20.1 -->
-                <input id="barLength" type="number" placeholder="Raw Bar Length" step="any">
+            <h2>2. Raw Material Stock (Available Bars)</h2>
+            <div class="input-group" style="background: #eef2f7; padding: 15px; border-radius: 8px;">
+                <input id="barDia" type="number" placeholder="Bar Dia (mm)" step="0.1">
+                <input id="barLength" type="number" placeholder="Length" step="any">
                 <select id="barUnit"></select>
-                <button onclick="perfectOptimize()" class="btn-optimize">🚀 Calculate Optimized Plan</button>
+                <button onclick="addRawBar()" class="btn-primary" style="background:#28a745;">Add to Stock</button>
             </div>
-            <div id="result"></div>
             
-            <div style="margin-top: 20px; display: flex; gap: 10px;">
-                <button onclick="downloadPDF()" class="btn-primary" style="background: #28a745;">Download PDF</button>
-                <a href="../index.html" class="back-home-btn" style="text-decoration: none; padding: 10px 20px; background: #6c757d; color: white; border-radius: 5px;">Back to Home</a>
+            <div class="raw-inventory">
+                <table style="width:100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="text-align:left; border-bottom: 2px solid #ddd;">
+                            <th>Diameter</th>
+                            <th>Length</th>
+                            <th>Unit</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rawBarTable"></tbody>
+                </table>
             </div>
+
+            <button onclick="perfectOptimize()" class="btn-optimize" style="margin-top:20px; width:100%; font-size:1.1em;">🚀 Run Optimization</button>
         </section>
+
+        <div id="result"></div>
+        <button onclick="downloadPDF()" class="btn-primary" style="margin-top:20px;">Download Report (PDF)</button>
+        <br><br>
+        <a href="../index.html" class="back-home-btn">Back to Home</a>
     </div>
 
     <script src="script.js"></script>
-    <script>
-        function downloadPDF() {
-            const printContent = document.getElementById("result").innerHTML;
-            if (!printContent) return alert("Pehle plan calculate karein!");
-            
-            const originalContent = document.body.innerHTML;
-            document.body.innerHTML = `
-                <div style="padding: 20px;">
-                    <h2 style="text-align:center;">Prakash Pumps - Cutting Plan</h2>
-                    ${printContent}
-                </div>`;
-            window.print();
-            document.body.innerHTML = originalContent;
-            window.location.reload(); // To restore event listeners
-        }
-    </script>
 </body>
 </html>
